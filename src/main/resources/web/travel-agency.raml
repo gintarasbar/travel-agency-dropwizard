@@ -1,0 +1,208 @@
+#%RAML 0.8
+---
+title: Travel Agency API
+version: v1
+protocols: [HTTP/HTTPS]
+baseUri: /
+/flight-offers:
+    post:
+        description: Create a Flight Offer
+        body:
+            application/json:
+                example: |
+                    {
+                        "price": "38.99",
+                        "origin": "londonGBR",
+                        "destination": "parisFRA",
+                        "airline": "EasyJet",
+                        "dates": [
+                            {
+                                "date": "2016-06-15"
+                            },
+                            {
+                                "date": "2016-06-22"
+                            },
+                            {
+                                "date": "2016-06-25"
+                            }
+                        ]
+                    }
+        responses:
+            200:
+                description: Flight Offer Successfully Created
+                body:
+                    application/json:
+                        example: |
+                            {
+                                "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
+                                "price": "38.99",
+                                "origin": "londonGBR",
+                                "destination": "parisFRA",
+                                "distance": "200.4",
+                                "airline": "EasyJet",
+                                "dates": [
+                                    {
+                                        "date": "2016-06-15"
+                                    },
+                                    {
+                                        "date": "2016-06-22"
+                                    },
+                                    {
+                                        "date": "2016-06-25"
+                                    }
+                                ]
+                            }
+    /update:
+        post:
+            description: Update a Flight Offer
+            body:
+                application/json:
+                    example: |
+                        {
+                            "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
+                            "price": "38.99",
+                            "dates": [
+                                {
+                                    "date": "2016-06-15"
+                                },
+                                {
+                                    "date": "2016-06-22"
+                                },
+                                {
+                                    "date": "2016-06-25"
+                                }
+                            ]
+                        }
+            responses:
+                200:
+                    description: Flight Offer Successfully Updated
+                    body:
+                        application/json:
+                            example: |
+                                {
+                                    "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
+                                    "price": "38.99",
+                                    "origin": "londonGBR",
+                                    "destination": "parisFRA",
+                                    "distance": "200.4",
+                                    "airline": "EasyJet",
+                                    "dates": [
+                                        {
+                                            "date": "2016-06-15"
+                                        },
+                                        {
+                                            "date": "2016-06-22"
+                                        },
+                                        {
+                                            "date": "2016-06-25"
+                                        }
+                                    ]
+                                }
+    /cancel:
+        post:
+            description: Cancel a Flight Offer
+            body:
+                application/json:
+                    example: |
+                        {
+                            "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
+                        }
+            responses:
+                200:
+                    description: Flight Offer Cancelled
+                404:
+                    description: Flight Offer Not Found
+                500:
+                    description: An error occurred while trying to cancel the Flight Offer
+    /find:
+        /outbound:
+            post:
+                description: Find a Flight Offer By FlightOrigin & Date
+                body:
+                    application/json:
+                        example: |
+                            {
+                                "origin": "londonGBR",
+                                "date": "2016-06-15"
+                            }
+                responses:
+                    200:
+                        description: Flight Offers Found Matching Your Criteria
+                        body:
+                            application/json:
+                                example: |
+                                [
+                                    {
+                                        "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
+                                        "price": "38.99",
+                                        "origin": "londonGBR",
+                                        "destination": "parisFRA",
+                                        "distance": "200.4",
+                                        "airline": "EasyJet",
+                                        "dates": [
+                                            {
+                                                "date": "2016-06-15"
+                                            },
+                                            {
+                                                "date": "2016-06-22"
+                                            },
+                                            {
+                                                "date": "2016-06-25"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "id": "a274342d-1324-4e2b-be98-4b75237af28b",
+                                        "price": "32.99",
+                                        "origin": "londonGBR",
+                                        "destination": "madridESP",
+                                        "distance": "450.8",
+                                        "airline": "Ryanair",
+                                        "dates": [
+                                            {
+                                                "date": "2016-06-15"
+                                            },
+                                            {
+                                                "date": "2016-06-20"
+                                            }
+                                        ]
+                                    }
+                                ]
+                    404:
+                        description: No flights matching your criteria
+        /inbound:
+            post:
+                description: Find closest Flight Offers by destination & Travel Origin
+                body:
+                    application/json:
+                        example: |
+                            {
+                                "travel-origin": "londonGBR",
+                                "destination": "cairoEGY"
+                            }
+            responses:
+                200:
+                    description: Flight Offer Successfully Updated
+                    body:
+                        application/json:
+                            example: |
+                                {
+                                    "id": "6da70017-20ee-42e4-aa7d-a2228661dbce",
+                                    "price": "45.99",
+                                    "origin": "parisFRA",
+                                    "destination": "cairoEGY",
+                                    "distance": "647.2",
+                                    "airline": "EasyJet",
+                                    "dates": [
+                                        {
+                                            "date": "2016-06-15"
+                                        },
+                                        {
+                                            "date": "2016-06-22"
+                                        },
+                                        {
+                                            "date": "2016-06-25"
+                                        }
+                                    ]
+                                }
+
