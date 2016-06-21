@@ -12,9 +12,11 @@ public class CitiesRepositoryTest {
 
     private CitiesRepository cities;
 
+    private static final String worldCitiesCSV= "/Users/ciaran.potter/projects/personal/travel-agency-dropwizard/src/test/resources/worldcities.csv";
+
     @Before
     public void setup(){
-        cities = new CitiesRepository();
+        cities = new CitiesRepository(worldCitiesCSV);
         cities.load();
     }
 
@@ -27,4 +29,6 @@ public class CitiesRepositoryTest {
     public void shouldGetCityById(){
         assertThat(cities.getCityById("londonGB"), is(not(equalTo(null))));
     }
+
+
 }

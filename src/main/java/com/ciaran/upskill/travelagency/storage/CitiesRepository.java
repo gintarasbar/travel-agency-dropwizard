@@ -11,12 +11,13 @@ import java.util.Collection;
 import java.util.HashSet;
 
 public class CitiesRepository {
-    public static final String worldCitiesCSV= "/Users/ciaran.potter/projects/personal/travel-agency-dropwizard/src/main/resources/worldcities.csv";
 
     private Collection<City> citiesCollection;
+    private String csvResourcePath;
 
-    public CitiesRepository(){
+    public CitiesRepository(String csvResourcePath){
         citiesCollection = new HashSet<City>();
+        this.csvResourcePath = csvResourcePath;
     }
 
     public int size() {
@@ -42,7 +43,7 @@ public class CitiesRepository {
         String csvSplitBy = ",";
 
         try {
-            br = new BufferedReader(new FileReader(worldCitiesCSV));
+            br = new BufferedReader(new FileReader(csvResourcePath));
             //to ignore headers
             br.readLine();
 

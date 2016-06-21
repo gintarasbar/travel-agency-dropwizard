@@ -2,7 +2,6 @@ package com.ciaran.upskill.travelagency.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 
@@ -16,34 +15,31 @@ public class FlightOffer {
     private String flightOriginId;
     @JsonProperty
     private String flightDestinationId;
+
     private double distance;
     @JsonProperty
     private String airline;
     @JsonProperty
-    Date[] flightDates;
+    AgencyDate[] flightDates;
 
-    public FlightOffer(double price, String flightOriginId, String flightDestinationId, String airline, Date[] flightDates) {
+    public FlightOffer(double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
         this.id = UUID.randomUUID();
         this.price = price;
         this.flightOriginId = flightOriginId;
         this.flightDestinationId = flightDestinationId;
         this.airline = airline;
-        //this.distance = CitiesRepository.getCityById(this.flightOriginId).getLocation().getDistance(CitiesRepository.getCityById(this.flightDestinationId).getLocation());
+        this.distance = 0.0;
         this.flightDates = flightDates;
     }
 
-    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, Date[] flightDates) {
+    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
         this.id = id;
         this.price = price;
         this.flightOriginId = flightOriginId;
         this.flightDestinationId = flightDestinationId;
         this.airline = airline;
-        //this.distance = CitiesRepository.getCityById(this.flightOriginId).getLocation().getDistance(CitiesRepository.getCityById(this.flightDestinationId).getLocation());
+        this.distance = 0.0;
         this.flightDates = flightDates;
-    }
-
-    public FlightOffer() {
-
     }
 
     public UUID getId() {
@@ -78,7 +74,7 @@ public class FlightOffer {
         return flightDates;
     }
 
-    public void setFlightDates(Date[] flightDates) {
+    public void setFlightDates(AgencyDate[] flightDates) {
         this.flightDates = flightDates;
     }
 

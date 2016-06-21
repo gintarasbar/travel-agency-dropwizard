@@ -1,5 +1,6 @@
 package com.ciaran.upskill.travelagency.storage;
 
+import com.ciaran.upskill.travelagency.domain.AgencyDate;
 import com.ciaran.upskill.travelagency.service.FlightOfferFactory;
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
 
@@ -16,17 +17,22 @@ import java.util.UUID;
 
 public class FlightOffersRepository {
     private Collection<FlightOffer> flightOfferCollection;
-    private static final String csvFile = "/Users/ciaran.potter/projects/personal/travel-agency-dropwizard/src/main/resources/flightoffers.csv";
+    private String csvResourcePath;
 
-    public FlightOffersRepository(){
+    public FlightOffersRepository(String csvResourcePath){
         flightOfferCollection = new HashSet<FlightOffer>();
+        this.csvResourcePath = csvResourcePath;
     }
 
-    public void save(){
+
+
+    public void save() {
+        BufferedWriter bufferedWriter = null;
         try {
-            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(csvFile));
+            bufferedWriter = new BufferedWriter(new FileWriter(csvResourcePath));
             String headerLine = "Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates";
-            bufferedWriter.write(headerLine+"\n");
+            bufferedWriter.append(headerLine);
+            bufferedWriter.newLine();
             for(FlightOffer flightOffer: flightOfferCollection){
                 bufferedWriter.append(flightOffer.toString());
                 bufferedWriter.append("\n");
@@ -35,6 +41,14 @@ public class FlightOffersRepository {
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (bufferedWriter != null){
+                try {
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -44,14 +58,15 @@ public class FlightOffersRepository {
         String csvSplitBy = ",";
 
         try {
-            bufferedReader = new BufferedReader(new FileReader(csvFile));
+            bufferedReader = new BufferedReader(new FileReader(csvResourcePath));
+            bufferedReader.readLine();
             while ((line = bufferedReader.readLine()) != null) {
                 String[] csvLine = line.split(csvSplitBy);
                 csvLine[5] = csvLine[5].substring(1,csvLine[5].length()-1);
                 String[] datesLine = csvLine[5].split(";");
-                Date[] datesArray = new Date[datesLine.length];
+                AgencyDate[] datesArray = new AgencyDate[datesLine.length];
                 for (int i = 0; i<datesArray.length; i++){
-                    datesArray[i] = new Date(datesLine[i]);
+                    datesArray[i] = new AgencyDate(datesLine[i]);
                 }
                 FlightOffer flightOffer = FlightOfferFactory.create(UUID.fromString(csvLine[0]),Double.parseDouble(csvLine[1]),csvLine[2],csvLine[3],csvLine[4], datesArray);
                 flightOfferCollection.add(flightOffer);
@@ -79,5 +94,28 @@ public class FlightOffersRepository {
 
     public boolean add(FlightOffer flightOffer) {
         return flightOfferCollection.add(flightOffer);
+    }
+
+    public FlightOffer getFLightOfferById(UUID id) {
+        for(FlightOffer flightOffer: flightOfferCollection){
+            if(flightOffer.getId().equals(id)){
+                return flightOffer;
+            }
+        }
+        return null;
+    }
+
+    public void updateDates(UUID id, AgencyDate[] dates){
+        FlightOffer flightOffer = getFLightOfferById(id);
+        if(flightOffer != null){
+            flightOffer.setFlightDates(dates);
+        }
+    };
+
+    public void updatePrice(UUID id, double newPrice) {
+        FlightOffer flightOffer = getFLightOfferById(id);
+        if(flightOffer != null){
+            flightOffer.setPrice(newPrice);
+        }
     }
 }

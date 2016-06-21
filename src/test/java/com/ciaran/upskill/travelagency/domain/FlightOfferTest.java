@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 public class FlightOfferTest {
 
     private UUID id;
-    private Date[] dates;
+    private AgencyDate[] dates;
     private String airline;
     private String flightDestinationId;
     private String flightOriginId;
@@ -22,10 +22,10 @@ public class FlightOfferTest {
 
     @Before
     public void setup() {
-        dates = new Date[3];
-        dates[0] = new Date(System.currentTimeMillis());
-        dates[1] = new Date(System.currentTimeMillis() + 36000000);
-        dates[2] = new Date(System.currentTimeMillis() + 72000000);
+        dates = new AgencyDate[3];
+        dates[0] = new AgencyDate("2016-06-21");
+        dates[1] = new AgencyDate("2016-06-27");
+        dates[2] = new AgencyDate("2016-07-01");
         id = UUID.randomUUID();
         airline = "Ryanair";
         flightDestinationId = "parisFR";
@@ -36,6 +36,7 @@ public class FlightOfferTest {
     @Test
     public void shouldBeCSVReadableToStringMethod(){
         String[] flightOfferArray = flightOffer.toString().split(",");
+        System.out.println(flightOffer.toString());
         assertThat(flightOfferArray.length, is(6));
         assertThat(flightOfferArray[0], is(equalTo(id.toString())));
         assertThat(Double.parseDouble(flightOfferArray[1]), is(equalTo(price)));
