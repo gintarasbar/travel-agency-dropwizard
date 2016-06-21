@@ -1,0 +1,2 @@
+Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates
+12341234-1234-1234-1234-123412341234,londonGB,parisFR,Ryanair,Mon Jun 20 16:39:22 BST 2016;Tue Jun 21 02:39:22 BST 2016;Tue Jun 21 12:39:22 BST 2016
