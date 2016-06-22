@@ -1,0 +1,2 @@
+Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates
+f3612bc3-60bf-4a26-8893-c1e041c18bc0,22.99,londonGB,parisFR,Ryanair,[2016-06-21;2016-06-27;2016-07-01]

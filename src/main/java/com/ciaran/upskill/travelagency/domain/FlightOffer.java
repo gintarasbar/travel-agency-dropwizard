@@ -12,22 +12,33 @@ public class FlightOffer {
     @JsonProperty
     private double price;
     @JsonProperty
-    private City flightOrigin;
+    private String flightOriginId;
     @JsonProperty
-    private City flightDestination;
+    private String flightDestinationId;
+
     private double distance;
     @JsonProperty
     private String airline;
     @JsonProperty
-    Date[] flightDates;
+    AgencyDate[] flightDates;
 
-    public FlightOffer(double price, City flightOrigin, City flightDestination, String airline, Date[] flightDates) {
+    public FlightOffer(double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
         this.id = UUID.randomUUID();
         this.price = price;
-        this.flightOrigin = flightOrigin;
-        this.flightDestination = flightDestination;
+        this.flightOriginId = flightOriginId;
+        this.flightDestinationId = flightDestinationId;
         this.airline = airline;
-        this.distance = flightOrigin.getLocation().getDistance(flightDestination.getLocation());
+        this.distance = 0.0;
+        this.flightDates = flightDates;
+    }
+
+    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
+        this.id = id;
+        this.price = price;
+        this.flightOriginId = flightOriginId;
+        this.flightDestinationId = flightDestinationId;
+        this.airline = airline;
+        this.distance = 0.0;
         this.flightDates = flightDates;
     }
 
@@ -43,12 +54,12 @@ public class FlightOffer {
         this.price = price;
     }
 
-    public City getFlightOrigin() {
-        return flightOrigin;
+    public String getFlightOriginId() {
+        return flightOriginId;
     }
 
-    public City getFlightDestination() {
-        return flightDestination;
+    public String getFlightDestinationId() {
+        return flightDestinationId;
     }
 
     public double getDistance() {
@@ -63,7 +74,23 @@ public class FlightOffer {
         return flightDates;
     }
 
-    public void setFlightDates(Date[] flightDates) {
+    public void setFlightDates(AgencyDate[] flightDates) {
         this.flightDates = flightDates;
+    }
+
+    @Override
+    public String toString() {
+        String flightDatesString = null;
+        int i = 0;
+        for(Date date : flightDates){
+            if(flightDatesString == null){
+                flightDatesString = "[" + flightDates[i].toString();
+            } else {
+                flightDatesString = flightDatesString + ";" + flightDates[i].toString();
+            }
+            i++;
+        }
+        flightDatesString = flightDatesString+"]";
+        return id + "," + price + "," + flightOriginId + "," + flightDestinationId + "," + airline + "," + flightDatesString;
     }
 }

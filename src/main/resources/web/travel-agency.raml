@@ -12,20 +12,10 @@ baseUri: /
                 example: |
                     {
                         "price": "38.99",
-                        "origin": "londonGBR",
-                        "destination": "parisFRA",
+                        "flightOrigin": "londonGBR",
+                        "flightDestination": "parisFRA",
                         "airline": "EasyJet",
-                        "dates": [
-                            {
-                                "date": "2016-06-15"
-                            },
-                            {
-                                "date": "2016-06-22"
-                            },
-                            {
-                                "date": "2016-06-25"
-                            }
-                        ]
+                        "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                     }
         responses:
             200:
@@ -36,21 +26,11 @@ baseUri: /
                             {
                                 "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
                                 "price": "38.99",
-                                "origin": "londonGBR",
-                                "destination": "parisFRA",
+                                "flightOrigin": "londonGBR",
+                                "flightDestination": "parisFRA",
                                 "distance": "200.4",
                                 "airline": "EasyJet",
-                                "dates": [
-                                    {
-                                        "date": "2016-06-15"
-                                    },
-                                    {
-                                        "date": "2016-06-22"
-                                    },
-                                    {
-                                        "date": "2016-06-25"
-                                    }
-                                ]
+                                "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                             }
     /update:
         post:
@@ -61,17 +41,7 @@ baseUri: /
                         {
                             "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
                             "price": "38.99",
-                            "dates": [
-                                {
-                                    "date": "2016-06-15"
-                                },
-                                {
-                                    "date": "2016-06-22"
-                                },
-                                {
-                                    "date": "2016-06-25"
-                                }
-                            ]
+                            "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                         }
             responses:
                 200:
@@ -82,21 +52,11 @@ baseUri: /
                                 {
                                     "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
                                     "price": "38.99",
-                                    "origin": "londonGBR",
-                                    "destination": "parisFRA",
+                                    "flightOrigin": "londonGBR",
+                                    "flightDestination": "parisFRA",
                                     "distance": "200.4",
                                     "airline": "EasyJet",
-                                    "dates": [
-                                        {
-                                            "date": "2016-06-15"
-                                        },
-                                        {
-                                            "date": "2016-06-22"
-                                        },
-                                        {
-                                            "date": "2016-06-25"
-                                        }
-                                    ]
+                                    "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                                 }
     /cancel:
         post:
@@ -122,7 +82,7 @@ baseUri: /
                     application/json:
                         example: |
                             {
-                                "origin": "londonGBR",
+                                "flightOrigin": "londonGBR",
                                 "date": "2016-06-15"
                             }
                 responses:
@@ -135,37 +95,20 @@ baseUri: /
                                     {
                                         "id": "e74fc76d-3868-4fdd-9df5-04946f46e44f",
                                         "price": "38.99",
-                                        "origin": "londonGBR",
-                                        "destination": "parisFRA",
+                                        "flightOrigin": "londonGBR",
+                                        "flightDestination": "parisFRA",
                                         "distance": "200.4",
                                         "airline": "EasyJet",
-                                        "dates": [
-                                            {
-                                                "date": "2016-06-15"
-                                            },
-                                            {
-                                                "date": "2016-06-22"
-                                            },
-                                            {
-                                                "date": "2016-06-25"
-                                            }
-                                        ]
+                                        "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                                     },
                                     {
                                         "id": "a274342d-1324-4e2b-be98-4b75237af28b",
                                         "price": "32.99",
-                                        "origin": "londonGBR",
-                                        "destination": "madridESP",
+                                        "flightOrigin": "londonGBR",
+                                        "flightDestination": "madridESP",
                                         "distance": "450.8",
                                         "airline": "Ryanair",
-                                        "dates": [
-                                            {
-                                                "date": "2016-06-15"
-                                            },
-                                            {
-                                                "date": "2016-06-20"
-                                            }
-                                        ]
+                                        "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                                     }
                                 ]
                     404:
@@ -178,7 +121,7 @@ baseUri: /
                         example: |
                             {
                                 "travel-origin": "londonGBR",
-                                "destination": "cairoEGY"
+                                "flightDestination": "cairoEGY"
                             }
             responses:
                 200:
@@ -189,20 +132,10 @@ baseUri: /
                                 {
                                     "id": "6da70017-20ee-42e4-aa7d-a2228661dbce",
                                     "price": "45.99",
-                                    "origin": "parisFRA",
-                                    "destination": "cairoEGY",
+                                    "flightOrigin": "parisFRA",
+                                    "flightDestination": "cairoEGY",
                                     "distance": "647.2",
                                     "airline": "EasyJet",
-                                    "dates": [
-                                        {
-                                            "date": "2016-06-15"
-                                        },
-                                        {
-                                            "date": "2016-06-22"
-                                        },
-                                        {
-                                            "date": "2016-06-25"
-                                        }
-                                    ]
+                                    "flightDates": ["2016-06-15","2016-06-22","2016-06-25"]
                                 }
 

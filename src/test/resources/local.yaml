@@ -1,4 +1,5 @@
 template: Hello, %s!
+defaultName: Stranger
 
 server:
   applicationConnectors:
