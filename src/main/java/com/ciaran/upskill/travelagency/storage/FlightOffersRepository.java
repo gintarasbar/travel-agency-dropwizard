@@ -1,7 +1,6 @@
 package com.ciaran.upskill.travelagency.storage;
 
 import com.ciaran.upskill.travelagency.domain.AgencyDate;
-import com.ciaran.upskill.travelagency.service.FlightOfferFactory;
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
 
 import java.io.BufferedReader;
@@ -11,7 +10,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -68,7 +66,7 @@ public class FlightOffersRepository {
                 for (int i = 0; i<datesArray.length; i++){
                     datesArray[i] = new AgencyDate(datesLine[i]);
                 }
-                FlightOffer flightOffer = FlightOfferFactory.create(UUID.fromString(csvLine[0]),Double.parseDouble(csvLine[1]),csvLine[2],csvLine[3],csvLine[4], datesArray);
+                FlightOffer flightOffer = new FlightOffer(UUID.fromString(csvLine[0]),Double.parseDouble(csvLine[1]),csvLine[2],csvLine[3],csvLine[4], datesArray);
                 flightOfferCollection.add(flightOffer);
             }
 

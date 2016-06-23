@@ -1,8 +1,10 @@
 package com.ciaran.upskill.travelagency.storage;
 
+import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.Is.is;
@@ -12,22 +14,22 @@ public class CitiesRepositoryTest {
 
     private CitiesRepository cities;
 
-    private static final String worldCitiesCSV= "/Users/ciaran.potter/projects/personal/travel-agency-dropwizard/src/test/resources/worldcities.csv";
+    private static final String worldCitiesCSV = "worldcities.csv";
 
     @Before
-    public void setup(){
-        cities = new CitiesRepository(worldCitiesCSV);
+    public void setup() {
+        cities = new CitiesRepository(Resources.getResource(worldCitiesCSV).getPath());
         cities.load();
     }
 
     @Test
-    public void shouldLoadCitiesFromCSV(){
+    public void shouldLoadCitiesFromCSV() {
         assertThat(cities.isEmpty(), is(false));
     }
 
     @Test
-    public void shouldGetCityById(){
-        assertThat(cities.getCityById("londonGB"), is(not(equalTo(null))));
+    public void shouldGetCityById() {
+        checkNotNull(cities.getCityById("londonGB"));
     }
 
 
