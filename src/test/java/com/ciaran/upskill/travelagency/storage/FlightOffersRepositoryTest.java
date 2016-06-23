@@ -2,6 +2,7 @@ package com.ciaran.upskill.travelagency.storage;
 
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
 import com.ciaran.upskill.travelagency.domain.AgencyDate;
+import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,12 +20,12 @@ import static org.junit.Assert.*;
 public class FlightOffersRepositoryTest {
 
     private FlightOffersRepository flightOffersRepository;
-    private static final String csvFile = "/Users/ciaran.potter/projects/personal/travel-agency-dropwizard/src/test/resources/flightoffers.csv";
+    private static final String csvFile = "flightoffers.csv";
     private FlightOffer flightOffer;
 
     @Before
     public void setUp(){
-        flightOffersRepository = new FlightOffersRepository(csvFile);
+        flightOffersRepository = new FlightOffersRepository(Resources.getResource(csvFile).getPath());
         AgencyDate[] dates = new AgencyDate[3];
         dates[0] = new AgencyDate("2016-06-21");
         dates[1] = new AgencyDate("2016-06-27");
@@ -48,7 +49,7 @@ public class FlightOffersRepositoryTest {
         flightOffersRepository.add(flightOffer);
         try {
             flightOffersRepository.save();
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(csvFile));
+            BufferedReader bufferedReader = new BufferedReader(new FileReader(Resources.getResource(csvFile).getPath()));
             assertThat(bufferedReader.readLine(), is(equalTo("Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates")));
             assertThat(bufferedReader.readLine(), is(equalTo(flightOffer.toString())));
             bufferedReader.close();

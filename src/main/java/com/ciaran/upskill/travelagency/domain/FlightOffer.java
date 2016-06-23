@@ -22,16 +22,6 @@ public class FlightOffer {
     @JsonProperty
     AgencyDate[] flightDates;
 
-    public FlightOffer(double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
-        this.id = UUID.randomUUID();
-        this.price = price;
-        this.flightOriginId = flightOriginId;
-        this.flightDestinationId = flightDestinationId;
-        this.airline = airline;
-        this.distance = 0.0;
-        this.flightDates = flightDates;
-    }
-
     public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
         this.id = id;
         this.price = price;
@@ -70,7 +60,7 @@ public class FlightOffer {
         return airline;
     }
 
-    public Date[] getFlightDates() {
+    public AgencyDate[] getFlightDates() {
         return flightDates;
     }
 
@@ -82,7 +72,7 @@ public class FlightOffer {
     public String toString() {
         String flightDatesString = null;
         int i = 0;
-        for(Date date : flightDates){
+        for(AgencyDate date : flightDates){
             if(flightDatesString == null){
                 flightDatesString = "[" + flightDates[i].toString();
             } else {
