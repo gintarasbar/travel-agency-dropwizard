@@ -3,6 +3,7 @@ package com.ciaran.upskill.travelagency.storage;
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
 import com.ciaran.upskill.travelagency.domain.AgencyDate;
 import com.google.common.io.Resources;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,10 +27,10 @@ public class FlightOffersRepositoryTest {
     @Before
     public void setUp(){
         flightOffersRepository = new FlightOffersRepository(Resources.getResource(csvFile).getPath());
-        AgencyDate[] dates = new AgencyDate[3];
-        dates[0] = new AgencyDate("2016-06-21");
-        dates[1] = new AgencyDate("2016-06-27");
-        dates[2] = new AgencyDate("2016-07-01");
+        DateTime[] dates = new DateTime[3];
+        dates[0] = new DateTime("2016-06-21");
+        dates[1] = new DateTime("2016-06-27");
+        dates[2] = new DateTime("2016-07-01");
         UUID id = UUID.randomUUID();
         String airline = "Ryanair";
         String flightDestinationId = "parisFR";
@@ -63,7 +64,7 @@ public class FlightOffersRepositoryTest {
     @Test
     public void shouldGetFlightOfferById(){
         UUID id = UUID.randomUUID();
-        FlightOffer flightOffer2 = new FlightOffer(id, Math.random(), "ab", "cd", "ef", new AgencyDate[2]);
+        FlightOffer flightOffer2 = new FlightOffer(id, Math.random(), "ab", "cd", "ef", new DateTime[2]);
         flightOffersRepository.add(flightOffer);
         flightOffersRepository.add(flightOffer2);
         FlightOffer retrievedFlightoffer = flightOffersRepository.getFLightOfferById(id);
@@ -73,9 +74,9 @@ public class FlightOffersRepositoryTest {
     @Test
     public void shouldUpdateFlightOfferDate(){
         flightOffersRepository.add(flightOffer);
-        AgencyDate[] dates = new AgencyDate[2];
-        dates[0] = new AgencyDate("2016-06-21");
-        dates[1] = new AgencyDate("2016-06-27");
+        DateTime[] dates = new DateTime[2];
+        dates[0] = new DateTime("2016-06-21");
+        dates[1] = new DateTime("2016-06-27");
         flightOffersRepository.updateDates(flightOffer.getId(), dates);
         FlightOffer retrievedOffer = flightOffersRepository.getFLightOfferById(flightOffer.getId());
         assertThat(retrievedOffer.getFlightDates(), is(equalTo(dates)));

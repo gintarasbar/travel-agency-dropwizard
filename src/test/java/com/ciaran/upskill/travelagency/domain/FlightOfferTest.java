@@ -1,5 +1,6 @@
 package com.ciaran.upskill.travelagency.domain;
 
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,7 +14,7 @@ import static org.junit.Assert.*;
 public class FlightOfferTest {
 
     private UUID id;
-    private AgencyDate[] dates;
+    private DateTime[] dates;
     private String airline;
     private String flightDestinationId;
     private String flightOriginId;
@@ -22,10 +23,10 @@ public class FlightOfferTest {
 
     @Before
     public void setup() {
-        dates = new AgencyDate[3];
-        dates[0] = new AgencyDate("2016-06-21");
-        dates[1] = new AgencyDate("2016-06-27");
-        dates[2] = new AgencyDate("2016-07-01");
+        dates = new DateTime[3];
+        dates[0] = new DateTime("2016-06-21T10:00:00.000");
+        dates[1] = new DateTime("2016-06-27T12:00:00.000");
+        dates[2] = new DateTime("2016-07-01T16:30:00.000");
         id = UUID.randomUUID();
         airline = "Ryanair";
         flightDestinationId = "parisFR";

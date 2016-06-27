@@ -6,7 +6,10 @@ import com.ciaran.upskill.travelagency.representation.CreateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.representation.UpdateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.storage.CitiesRepository;
 import com.ciaran.upskill.travelagency.storage.FlightOffersRepository;
+import org.joda.time.DateTime;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.UUID;
 
 public class FlightOfferService {
@@ -25,9 +28,9 @@ public class FlightOfferService {
             return null;
         }
         String[] requestDates = createFlightOfferRequest.getFlightDates();
-        AgencyDate[] flightDates = new AgencyDate[requestDates.length];
+        DateTime[] flightDates = new DateTime[requestDates.length];
         for(int i = 0; i<requestDates.length; i++){
-            flightDates[i] = new AgencyDate(requestDates[i]);
+            flightDates[i] = new DateTime(requestDates[i]);
         }
         FlightOffer flightOffer = new FlightOffer(UUID.randomUUID(), createFlightOfferRequest.getPrice(), createFlightOfferRequest.getFlightOrigin(), createFlightOfferRequest.getFlightDestination(), createFlightOfferRequest.getAirline(), flightDates);
         flightOffersRepository.add(flightOffer);
@@ -40,7 +43,7 @@ public class FlightOfferService {
         boolean updates = false;
         FlightOffer flightOffer = flightOffersRepository.getFLightOfferById(UUID.fromString(flightOfferId));
         if(flightOffer==null){
-            return flightOffer;
+            return null;
         }
         double price = updateFlightOfferRequest.getPrice();
         if(price >0 && price != flightOffer.getPrice()){
@@ -49,9 +52,9 @@ public class FlightOfferService {
         }
         String[] flightDates = updateFlightOfferRequest.getFlightDates();
         if(flightDates !=null){
-            AgencyDate[] agencyDates = new AgencyDate[flightDates.length];
+            DateTime[] agencyDates = new DateTime[flightDates.length];
             for(int i = 0; i<flightDates.length; i++){
-                agencyDates[i] = new AgencyDate(flightDates[i]);
+                agencyDates[i] = new DateTime(flightDates[i]);
             }
             flightOffer.setFlightDates(agencyDates);
             updates = true;
@@ -60,5 +63,43 @@ public class FlightOfferService {
             flightOffersRepository.save();
         }
         return flightOffer;
+    }
+
+    public boolean cancelFlightOffer(String flightOfferId) {
+        FlightOffer flightOffer = flightOffersRepository.getFLightOfferById(UUID.fromString(flightOfferId));
+        if(flightOffer==null){
+            return false;
+        }
+        if(flightOffersRepository.remove(flightOffer)){
+            flightOffersRepository.save();
+        }
+        return true;
+    }
+
+    public FlightOffer getFlightOffer(String flightOfferId) {
+        return flightOffersRepository.getFLightOfferById(UUID.fromString(flightOfferId));
+    }
+
+    public Collection<FlightOffer> findFlightOfferByJourneyStart(String outBoundCityId, String date) {
+        Collection<FlightOffer> originFlightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(outBoundCityId);
+        Collection<FlightOffer> responseFlightOfferCollection = new HashSet<>();
+        DateTime requestDate = new DateTime(date);
+        for (FlightOffer flightOffer: originFlightOfferCollection){
+            boolean matchingDay = false;
+            for(DateTime dateTime : flightOffer.getFlightDates()){
+                if(requestDate.withTimeAtStartOfDay().isEqual(dateTime.withTimeAtStartOfDay())){
+                    matchingDay = true;
+                }
+
+            }
+            if(matchingDay){
+                responseFlightOfferCollection.add(flightOffer);
+            }
+        }
+        return responseFlightOfferCollection;
+    }
+
+    public FlightOffer findNearestFlightOfferToJourneyEnd(String inBoundCityId, String journeyStartCityId, String date) {
+        return null;
     }
 }
