@@ -1,7 +1,8 @@
 package com.ciaran.upskill.travelagency.storage;
 
-import com.ciaran.upskill.travelagency.domain.AgencyDate;
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
+import com.ciaran.upskill.travelagency.service.FlightOfferBuilder;
+import org.joda.time.DateTime;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -58,15 +59,22 @@ public class FlightOffersRepository {
         try {
             bufferedReader = new BufferedReader(new FileReader(csvResourcePath));
             bufferedReader.readLine();
+            FlightOfferBuilder flightOfferBuilder = new FlightOfferBuilder();
             while ((line = bufferedReader.readLine()) != null) {
                 String[] csvLine = line.split(csvSplitBy);
                 csvLine[5] = csvLine[5].substring(1,csvLine[5].length()-1);
                 String[] datesLine = csvLine[5].split(";");
-                AgencyDate[] datesArray = new AgencyDate[datesLine.length];
+                DateTime[] datesArray = new DateTime[datesLine.length];
                 for (int i = 0; i<datesArray.length; i++){
-                    datesArray[i] = new AgencyDate(datesLine[i]);
+                    datesArray[i] = new DateTime(datesLine[i]);
                 }
-                FlightOffer flightOffer = new FlightOffer(UUID.fromString(csvLine[0]),Double.parseDouble(csvLine[1]),csvLine[2],csvLine[3],csvLine[4], datesArray);
+                FlightOffer flightOffer = flightOfferBuilder.withId(UUID.fromString(csvLine[0]))
+                        .withPrice(Double.parseDouble(csvLine[1]))
+                        .withFlightOriginId(csvLine[2])
+                        .withFlightDestinationId(csvLine[3])
+                        .withAirline(csvLine[4])
+                        .withFlightDates(datesArray)
+                        .build();
                 flightOfferCollection.add(flightOffer);
             }
 
@@ -103,7 +111,7 @@ public class FlightOffersRepository {
         return null;
     }
 
-    public void updateDates(UUID id, AgencyDate[] dates){
+    public void updateDates(UUID id, DateTime[] dates){
         FlightOffer flightOffer = getFLightOfferById(id);
         if(flightOffer != null){
             flightOffer.setFlightDates(dates);
@@ -115,5 +123,19 @@ public class FlightOffersRepository {
         if(flightOffer != null){
             flightOffer.setPrice(newPrice);
         }
+    }
+
+    public boolean remove(FlightOffer flightOffer) {
+        return flightOfferCollection.remove(flightOffer);
+    }
+
+    public Collection<FlightOffer> getFlightOfferByFlightOrigin(String outBoundCityId) {
+        Collection<FlightOffer> newFlightOfferCollection = new HashSet<FlightOffer>();
+        for(FlightOffer flightOffer : flightOfferCollection){
+            if(flightOffer.getFlightOriginId().matches(outBoundCityId)){
+                newFlightOfferCollection.add(flightOffer);
+            }
+        }
+        return newFlightOfferCollection;
     }
 }

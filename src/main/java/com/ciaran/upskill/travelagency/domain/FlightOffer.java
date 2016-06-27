@@ -1,8 +1,8 @@
 package com.ciaran.upskill.travelagency.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.joda.time.DateTime;
 
-import java.util.Date;
 import java.util.UUID;
 
 public class FlightOffer {
@@ -20,9 +20,9 @@ public class FlightOffer {
     @JsonProperty
     private String airline;
     @JsonProperty
-    AgencyDate[] flightDates;
+    DateTime[] flightDates;
 
-    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, AgencyDate[] flightDates) {
+    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, DateTime[] flightDates) {
         this.id = id;
         this.price = price;
         this.flightOriginId = flightOriginId;
@@ -60,11 +60,11 @@ public class FlightOffer {
         return airline;
     }
 
-    public AgencyDate[] getFlightDates() {
+    public DateTime[] getFlightDates() {
         return flightDates;
     }
 
-    public void setFlightDates(AgencyDate[] flightDates) {
+    public void setFlightDates(DateTime[] flightDates) {
         this.flightDates = flightDates;
     }
 
@@ -72,7 +72,7 @@ public class FlightOffer {
     public String toString() {
         String flightDatesString = null;
         int i = 0;
-        for(AgencyDate date : flightDates){
+        for(DateTime date : flightDates){
             if(flightDatesString == null){
                 flightDatesString = "[" + flightDates[i].toString();
             } else {

@@ -8,11 +8,13 @@ import com.ciaran.upskill.travelagency.representation.CreateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.representation.UpdateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.storage.CitiesRepository;
 import com.ciaran.upskill.travelagency.storage.FlightOffersRepository;
+import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.util.Collection;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -66,15 +68,15 @@ public class FlightOfferServiceTest {
     @Test
     public void shouldUpdateFlightAndSave(){
         UUID id = UUID.randomUUID();
-        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", new AgencyDate[]{new AgencyDate("2016-06-23"), new AgencyDate("2016-06-24")});
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", new DateTime[]{new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")});
         when(flightOffersRepository.getFLightOfferById(any())).thenReturn(flightOffer);
-        String[] flightDates = {"2016-06-25", "2016-06-26"};
+        String[] flightDates = {"2016-06-25T13:00:00.000", "2016-06-26T16:00:00.000"};
         UpdateFlightOfferRequest updateFlightOfferRequest = new UpdateFlightOfferRequest(3.99, flightDates);
         flightOffer = flightOfferService.updateFlightOffer(id.toString(), updateFlightOfferRequest);
         verify(flightOffersRepository).save();
         assertThat(flightOffer.getPrice(), is(3.99));
         for(int i = 0; i<flightOffer.getFlightDates().length; i++){
-            assertThat(flightOffer.getFlightDates()[i].toString(), is(equalTo(flightDates[i])));
+            assertThat(flightOffer.getFlightDates()[i], is(equalTo(new DateTime(flightDates[i]))));
         }
 
     }
@@ -82,14 +84,72 @@ public class FlightOfferServiceTest {
     @Test
     public void shouldNotUpdateFlightAndSaveIfFlightIdNotFound(){
         UUID id = UUID.randomUUID();
-        AgencyDate[] flightDates = {new AgencyDate("2016-06-23"), new AgencyDate("2016-06-24")};
+        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
         FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
         when(flightOffersRepository.getFLightOfferById(any())).thenReturn(null);
-        UpdateFlightOfferRequest updateFlightOfferRequest = new UpdateFlightOfferRequest(3.99, new String[]{"2016-06-25", "2016-06-26"});
+        UpdateFlightOfferRequest updateFlightOfferRequest = new UpdateFlightOfferRequest(3.99, new String[]{"2016-06-25T13:00:00.000", "2016-06-26T16:00:00.000"});
         FlightOffer flightOffer2 = flightOfferService.updateFlightOffer(id.toString(), updateFlightOfferRequest);
         verify(flightOffersRepository, times(0)).save();
         assertThat(flightOffer.getPrice(), is(2.99));
         assertThat(flightOffer.getFlightDates(), is(flightDates));
         assertThat(flightOffer2, is(equalTo(null)));
+    }
+
+    @Test
+    public void shouldNotUpdateFlightAndSaveIfThereIsNoUpdate(){
+        UUID id = UUID.randomUUID();
+        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        when(flightOffersRepository.getFLightOfferById(any())).thenReturn(flightOffer);
+        UpdateFlightOfferRequest updateFlightOfferRequest = new UpdateFlightOfferRequest(2.99, null);
+        FlightOffer flightOffer2 = flightOfferService.updateFlightOffer(id.toString(), updateFlightOfferRequest);
+        verify(flightOffersRepository, times(0)).save();
+        assertThat(flightOffer.getPrice(), is(2.99));
+        assertThat(flightOffer.getFlightDates(), is(flightDates));
+        assertThat(flightOffer2, is(equalTo(flightOffer)));
+    }
+
+    @Test
+    public void shouldDeleteAndSaveIfFlightIsCancelled(){
+        UUID id = UUID.randomUUID();
+        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        when(flightOffersRepository.getFLightOfferById(id)).thenReturn(flightOffer);
+        when(flightOffersRepository.remove(flightOffer)).thenReturn(true);
+        assertThat(flightOfferService.cancelFlightOffer(id.toString()), is(true));
+        verify(flightOffersRepository).remove(flightOffer);
+        verify(flightOffersRepository).save();
+    }
+
+    @Test
+    public void shouldReturnFalseIfFlightNotFound(){
+        UUID id = UUID.randomUUID();
+        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        when(flightOffersRepository.getFLightOfferById(any())).thenReturn(null);
+        assertThat(flightOfferService.cancelFlightOffer(id.toString()), is(false));
+        verify(flightOffersRepository, times(0)).remove(flightOffer);
+        verify(flightOffersRepository, times(0)).save();
+    }
+
+    @Test
+    public void shouldFindOnlyFlightOffersWithMatchingJourneyStartAndDate(){
+        flightOffersRepository = new FlightOffersRepository("");
+        flightOfferService = new FlightOfferService(flightOffersRepository, cityService);
+        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
+        UUID id = UUID.randomUUID();
+        FlightOffer flightOffer1 = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer2 = new FlightOffer(id, 2.99, "londonGB", "parisFR", "EasyJet", new DateTime[]{new DateTime("2016-06-24T16:00:00.000")});
+        FlightOffer flightOffer3 = new FlightOffer(id, 2.99, "moscowRU", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer4 = new FlightOffer(id, 2.99, "londonGB", "moscowRU", "EasyJet", flightDates);
+        flightOffersRepository.add(flightOffer1);
+        flightOffersRepository.add(flightOffer2);
+        flightOffersRepository.add(flightOffer3);
+        flightOffersRepository.add(flightOffer4);
+        Collection<FlightOffer> flightOfferCollection = flightOfferService.findFlightOfferByJourneyStart("londonGB", "2016-06-23");
+        assertThat(flightOfferCollection.contains(flightOffer1), is(true));
+        assertThat(flightOfferCollection.contains(flightOffer2), is(false));
+        assertThat(flightOfferCollection.contains(flightOffer3), is(false));
+        assertThat(flightOfferCollection.contains(flightOffer4), is(false));
     }
 }
