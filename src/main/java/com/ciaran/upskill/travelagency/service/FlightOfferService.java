@@ -81,9 +81,10 @@ public class FlightOfferService {
     }
 
     public Collection<FlightOffer> findFlightOfferByJourneyStart(String outBoundCityId, String date) {
-        Collection<FlightOffer> flightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(outBoundCityId);
+        Collection<FlightOffer> originFlightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(outBoundCityId);
+        Collection<FlightOffer> responseFlightOfferCollection = new HashSet<>();
         DateTime requestDate = new DateTime(date);
-        for (FlightOffer flightOffer: flightOfferCollection){
+        for (FlightOffer flightOffer: originFlightOfferCollection){
             boolean matchingDay = false;
             for(DateTime dateTime : flightOffer.getFlightDates()){
                 if(requestDate.withTimeAtStartOfDay().isEqual(dateTime.withTimeAtStartOfDay())){
@@ -91,11 +92,11 @@ public class FlightOfferService {
                 }
 
             }
-            if(!matchingDay){
-                flightOfferCollection.remove(flightOffer);
+            if(matchingDay){
+                responseFlightOfferCollection.add(flightOffer);
             }
         }
-        return flightOfferCollection;
+        return responseFlightOfferCollection;
     }
 
     public FlightOffer findNearestFlightOfferToJourneyEnd(String inBoundCityId, String journeyStartCityId, String date) {

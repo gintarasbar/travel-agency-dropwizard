@@ -9,7 +9,7 @@ import static org.hamcrest.core.Is.is;
 public class CoOrdindateTest {
 
     @Test
-    public void shouldReturnPythagoreanDistance() throws Exception {
+    public void shouldReturnCartesianDistance() throws Exception {
         CoOrdinate origin = new CoOrdinate(0.0, 0.0);
         CoOrdinate destination = new CoOrdinate(3.0, 4.0);
         assertThat(origin.getDistance(destination), is(equalTo(5.0)));

@@ -138,10 +138,10 @@ public class FlightOfferServiceTest {
         flightOfferService = new FlightOfferService(flightOffersRepository, cityService);
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
         UUID id = UUID.randomUUID();
-        FlightOffer flightOffer1 = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
-        FlightOffer flightOffer2 = new FlightOffer(id, 2.99, "londonGB", "parisFR", "EasyJet", new DateTime[]{new DateTime("2016-06-24T16:00:00.000")});
-        FlightOffer flightOffer3 = new FlightOffer(id, 2.99, "moscowRU", "parisFR", "Ryanair", flightDates);
-        FlightOffer flightOffer4 = new FlightOffer(id, 2.99, "londonGB", "moscowRU", "EasyJet", flightDates);
+        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "parisFR", "EasyJet", new DateTime[]{new DateTime("2016-06-24T16:00:00.000")});
+        FlightOffer flightOffer3 = new FlightOffer(UUID.randomUUID(), 2.99, "moscowRU", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer4 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "moscowRU", "EasyJet", flightDates);
         flightOffersRepository.add(flightOffer1);
         flightOffersRepository.add(flightOffer2);
         flightOffersRepository.add(flightOffer3);
@@ -150,6 +150,6 @@ public class FlightOfferServiceTest {
         assertThat(flightOfferCollection.contains(flightOffer1), is(true));
         assertThat(flightOfferCollection.contains(flightOffer2), is(false));
         assertThat(flightOfferCollection.contains(flightOffer3), is(false));
-        assertThat(flightOfferCollection.contains(flightOffer4), is(false));
+        assertThat(flightOfferCollection.contains(flightOffer4), is(true));
     }
 }

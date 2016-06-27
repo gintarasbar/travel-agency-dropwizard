@@ -20,6 +20,7 @@ public class TravelAgencyApp extends Application<TravelAgencyConfig> {
     }
 
     public void run(TravelAgencyConfig configuration, Environment environment) throws Exception {
+
         final FlightOffersRepository flightOffersRepository = new FlightOffersRepository(Resources.getResource(flightOffersCSV).getPath());
         flightOffersRepository.load();
         final CitiesRepository citiesRepository = new CitiesRepository(Resources.getResource(worldCitiesCSV).getPath());
@@ -29,6 +30,8 @@ public class TravelAgencyApp extends Application<TravelAgencyConfig> {
         final TravelAgencyResource resource = new TravelAgencyResource(flightOfferService);
         final TravelAgencyHealthCheck healthCheck =
                 new TravelAgencyHealthCheck(configuration.getTemplate());
+
+        environment.getObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         environment.healthChecks().register("template", healthCheck);
         environment.jersey().register(resource);
 
