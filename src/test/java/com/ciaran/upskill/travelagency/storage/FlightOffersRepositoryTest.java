@@ -1,7 +1,6 @@
 package com.ciaran.upskill.travelagency.storage;
 
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
-import com.ciaran.upskill.travelagency.domain.AgencyDate;
 import com.google.common.io.Resources;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -11,18 +10,21 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Date;
+import java.util.Collection;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class FlightOffersRepositoryTest {
 
     private FlightOffersRepository flightOffersRepository;
     private static final String csvFile = "flightoffers.csv";
     private FlightOffer flightOffer;
+    private String flightDestinationId;
+    private String flightOriginId;
 
     @Before
     public void setUp(){
@@ -33,8 +35,8 @@ public class FlightOffersRepositoryTest {
         dates[2] = new DateTime("2016-07-01");
         UUID id = UUID.randomUUID();
         String airline = "Ryanair";
-        String flightDestinationId = "parisFR";
-        String flightOriginId = "londonGB";
+        flightDestinationId = "parisFR";
+        flightOriginId = "londonGB";
         double price = 22.99;
         flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, airline, dates);
     }
@@ -52,7 +54,7 @@ public class FlightOffersRepositoryTest {
             flightOffersRepository.save();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(Resources.getResource(csvFile).getPath()));
             assertThat(bufferedReader.readLine(), is(equalTo("Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates")));
-            assertThat(bufferedReader.readLine(), is(equalTo(flightOffer.toString())));
+            assertThat(bufferedReader.readLine(), is(equalTo(flightOffer.toCSVRow())));
             bufferedReader.close();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -67,8 +69,8 @@ public class FlightOffersRepositoryTest {
         FlightOffer flightOffer2 = new FlightOffer(id, Math.random(), "ab", "cd", "ef", new DateTime[2]);
         flightOffersRepository.add(flightOffer);
         flightOffersRepository.add(flightOffer2);
-        FlightOffer retrievedFlightoffer = flightOffersRepository.getFLightOfferById(id);
-        assertThat(retrievedFlightoffer, is(equalTo(flightOffer2)));
+        Optional<FlightOffer> retrievedFlightoffer = flightOffersRepository.getFLightOfferById(id);
+        assertThat(retrievedFlightoffer.get(), is(equalTo(flightOffer2)));
     }
 
     @Test
@@ -78,8 +80,8 @@ public class FlightOffersRepositoryTest {
         dates[0] = new DateTime("2016-06-21");
         dates[1] = new DateTime("2016-06-27");
         flightOffersRepository.updateDates(flightOffer.getId(), dates);
-        FlightOffer retrievedOffer = flightOffersRepository.getFLightOfferById(flightOffer.getId());
-        assertThat(retrievedOffer.getFlightDates(), is(equalTo(dates)));
+        Optional<FlightOffer> retrievedOffer = flightOffersRepository.getFLightOfferById(flightOffer.getId());
+        assertThat(retrievedOffer.get().getFlightDates(), is(equalTo(dates)));
     }
 
     @Test
@@ -87,8 +89,28 @@ public class FlightOffersRepositoryTest {
         flightOffersRepository.add(flightOffer);
         double newPrice = 23.49;
         flightOffersRepository.updatePrice(flightOffer.getId(), newPrice);
-        FlightOffer retrievedOffer = flightOffersRepository.getFLightOfferById(flightOffer.getId());
-        assertThat(retrievedOffer.getPrice(), is(equalTo(newPrice)));
+        Optional<FlightOffer> retrievedOffer = flightOffersRepository.getFLightOfferById(flightOffer.getId());
+        assertThat(retrievedOffer.get().getPrice(), is(equalTo(newPrice)));
+    }
+
+    @Test
+    public void shouldFindFlightOffersByFlightOrigin(){
+        flightOffersRepository.load();
+        flightOffersRepository.add(flightOffer);
+        Collection<FlightOffer> flightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(flightOriginId);
+        for(FlightOffer nextFlightOffer : flightOfferCollection){
+            assertThat(nextFlightOffer.getFlightOriginId(), is(equalTo(flightOriginId)));
+        }
+    }
+
+    @Test
+    public void shouldFindFLightOffersByFlightDestination(){
+        flightOffersRepository.load();
+        flightOffersRepository.add(flightOffer);
+        Collection<FlightOffer> flightOfferCollection = flightOffersRepository.getFlightOfferByFlightDestination(flightDestinationId);
+        for(FlightOffer nextFlightOffer : flightOfferCollection){
+            assertThat(nextFlightOffer.getFlightDestinationId(), is(equalTo(flightDestinationId)));
+        }
     }
 
 }

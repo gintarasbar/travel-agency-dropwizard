@@ -3,9 +3,7 @@ package com.ciaran.upskill.travelagency.service;
 import com.ciaran.upskill.travelagency.storage.CitiesRepository;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class CityServiceTest {

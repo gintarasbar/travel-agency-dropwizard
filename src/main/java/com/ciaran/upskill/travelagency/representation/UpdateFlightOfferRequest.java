@@ -1,24 +1,27 @@
 package com.ciaran.upskill.travelagency.representation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.validation.constraints.NotNull;
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class UpdateFlightOfferRequest {
 
     @JsonProperty
-    private double price;
+    private Double price;
 
     @JsonProperty
     private String[] flightDates;
 
-    public UpdateFlightOfferRequest(@JsonProperty("price") double price,
+    @JsonCreator
+    public UpdateFlightOfferRequest(@JsonProperty("price") Double price,
                                     @JsonProperty("flightDates") String[] flightDates) {
         this.price = price;
         this.flightDates = flightDates;
+        checkArgument(price!=null || flightDates!=null, "Must have an update!");
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 

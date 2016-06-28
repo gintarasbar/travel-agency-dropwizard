@@ -1,6 +1,5 @@
 package com.ciaran.upskill.travelagency;
 
-import com.ciaran.upskill.travelagency.config.TravelAgencyConfig;
 import com.codahale.metrics.health.HealthCheck;
 
 public class TravelAgencyHealthCheck extends HealthCheck{

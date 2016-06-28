@@ -4,12 +4,11 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class FlightOfferTest {
 
@@ -35,9 +34,9 @@ public class FlightOfferTest {
         flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, airline, dates);
     }
     @Test
-    public void shouldBeCSVReadableToStringMethod(){
-        String[] flightOfferArray = flightOffer.toString().split(",");
-        System.out.println(flightOffer.toString());
+    public void shouldConvertToCSVRow(){
+        String[] flightOfferArray = flightOffer.toCSVRow().split(",");
+        System.out.println(flightOffer.toCSVRow());
         assertThat(flightOfferArray.length, is(6));
         assertThat(flightOfferArray[0], is(equalTo(id.toString())));
         assertThat(Double.parseDouble(flightOfferArray[1]), is(equalTo(price)));

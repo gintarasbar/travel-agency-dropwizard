@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FlightOffersRepository {
@@ -33,7 +34,7 @@ public class FlightOffersRepository {
             bufferedWriter.append(headerLine);
             bufferedWriter.newLine();
             for(FlightOffer flightOffer: flightOfferCollection){
-                bufferedWriter.append(flightOffer.toString());
+                bufferedWriter.append(flightOffer.toCSVRow());
                 bufferedWriter.append("\n");
             }
 
@@ -102,27 +103,18 @@ public class FlightOffersRepository {
         return flightOfferCollection.add(flightOffer);
     }
 
-    public FlightOffer getFLightOfferById(UUID id) {
-        for(FlightOffer flightOffer: flightOfferCollection){
-            if(flightOffer.getId().equals(id)){
-                return flightOffer;
-            }
-        }
-        return null;
+    public Optional<FlightOffer> getFLightOfferById(UUID id) {
+        return flightOfferCollection.stream()
+                .filter(flightOffer -> flightOffer.getId().equals(id))
+                .findFirst();
     }
 
     public void updateDates(UUID id, DateTime[] dates){
-        FlightOffer flightOffer = getFLightOfferById(id);
-        if(flightOffer != null){
-            flightOffer.setFlightDates(dates);
-        }
-    };
+        getFLightOfferById(id).ifPresent(flight->flight.setFlightDates(dates));
+    }
 
     public void updatePrice(UUID id, double newPrice) {
-        FlightOffer flightOffer = getFLightOfferById(id);
-        if(flightOffer != null){
-            flightOffer.setPrice(newPrice);
-        }
+        getFLightOfferById(id).ifPresent(flightOffer -> flightOffer.setPrice(newPrice));
     }
 
     public boolean remove(FlightOffer flightOffer) {
@@ -133,6 +125,16 @@ public class FlightOffersRepository {
         Collection<FlightOffer> newFlightOfferCollection = new HashSet<FlightOffer>();
         for(FlightOffer flightOffer : flightOfferCollection){
             if(flightOffer.getFlightOriginId().matches(outBoundCityId)){
+                newFlightOfferCollection.add(flightOffer);
+            }
+        }
+        return newFlightOfferCollection;
+    }
+
+    public Collection<FlightOffer> getFlightOfferByFlightDestination(String inBoundCityId) {
+        Collection<FlightOffer> newFlightOfferCollection = new HashSet<FlightOffer>();
+        for(FlightOffer flightOffer : flightOfferCollection){
+            if(flightOffer.getFlightDestinationId().matches(inBoundCityId)){
                 newFlightOfferCollection.add(flightOffer);
             }
         }
