@@ -29,7 +29,7 @@ public class TravelAgencyApp extends Application<TravelAgencyConfig> {
         final FlightOfferService flightOfferService = new FlightOfferService(flightOffersRepository, cityService);
         final TravelAgencyResource resource = new TravelAgencyResource(flightOfferService);
         final TravelAgencyHealthCheck healthCheck =
-                new TravelAgencyHealthCheck(configuration.getTemplate());
+                new TravelAgencyHealthCheck();
 
         environment.getObjectMapper().disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         environment.healthChecks().register("template", healthCheck);

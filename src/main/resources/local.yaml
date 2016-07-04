@@ -1,5 +1,3 @@
-template: Hello, %s!
-
 server:
   applicationConnectors:
   - type: http
