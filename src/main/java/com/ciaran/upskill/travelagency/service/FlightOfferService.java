@@ -80,8 +80,8 @@ public class FlightOfferService {
         return flightOffersRepository.getFLightOfferById(flightOfferId);
     }
 
-    public Collection<FlightOffer> findFlightOfferByJourneyStart(String outBoundCityId, String date) {
-        Collection<FlightOffer> originFlightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(outBoundCityId);
+    public Collection<FlightOffer> findFlightOfferByJourneyStart(String flightOrigin, String date) {
+        Collection<FlightOffer> originFlightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(flightOrigin);
         Collection<FlightOffer> responseFlightOfferCollection = new HashSet<>();
         DateTime requestDate = new DateTime(date);
         for (FlightOffer flightOffer: originFlightOfferCollection){
@@ -99,17 +99,17 @@ public class FlightOfferService {
         return responseFlightOfferCollection;
     }
 
-    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(String inBoundCityId, String journeyStartCityId, String dateString) {
-        Collection<FlightOffer> flightOffersGoingToDestination = flightOffersRepository.getFlightOfferByFlightDestination(inBoundCityId);
+    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(String flightDestination, String travelOrigin, String dateString) {
+        Collection<FlightOffer> flightOffersGoingToDestination = flightOffersRepository.getFlightOfferByFlightDestination(flightDestination);
         DateTime requestDate = new DateTime(dateString);
         String closestCityId = null;
         double closestDistance = 0;
         for (FlightOffer flightOffer : flightOffersGoingToDestination){
             if(closestCityId == null){
                 closestCityId = flightOffer.getFlightOriginId();
-                closestDistance = cityService.getDistance(journeyStartCityId, closestCityId);
+                closestDistance = cityService.getDistance(travelOrigin, closestCityId);
             } else {
-                double distance = cityService.getDistance(journeyStartCityId, flightOffer.getFlightOriginId());
+                double distance = cityService.getDistance(travelOrigin, flightOffer.getFlightOriginId());
                 if(distance<closestDistance){
                     closestDistance = distance;
                     closestCityId = flightOffer.getFlightOriginId();

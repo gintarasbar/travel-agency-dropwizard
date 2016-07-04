@@ -72,15 +72,15 @@ public class TravelAgencyResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Collection<FlightOffer> findFlightOfferByJourneyStart(@QueryParam("outbound-city") String journeyStartCityId, @QueryParam("date") String date){
-        return flightOfferService.findFlightOfferByJourneyStart(journeyStartCityId, date);
+    public Collection<FlightOffer> findFlightOfferByJourneyStart(@QueryParam("flight-origin") String flightOriginId, @QueryParam("date") String date){
+        return flightOfferService.findFlightOfferByJourneyStart(flightOriginId, date);
     }
 
     @GET
     @Path("/nearest")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(@QueryParam("inbound-city") String journeyEndCityId, @QueryParam("origin") String journeyStartCityId, @QueryParam("date") String date){
-        return flightOfferService.findNearestFlightOfferToJourneyEnd(journeyEndCityId, journeyStartCityId, date);
+    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(@QueryParam("flight-destination") String flightDestinationId, @QueryParam("travel-origin") String travelOriginId, @QueryParam("date") String date){
+        return flightOfferService.findNearestFlightOfferToJourneyEnd(flightDestinationId, travelOriginId, date);
     }
 }
