@@ -1,6 +1,7 @@
 package com.ciaran.upskill.travelagency.storage;
 
 import com.google.common.io.Resources;
+import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ public class CitiesRepositoryTest {
     }
 
     @Test
-    public void shouldGetCityById() {
+    public void shouldGetCityById() throws NotFoundException {
         checkNotNull(cities.getCityById("londonGB"));
     }
 

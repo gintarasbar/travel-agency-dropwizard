@@ -5,6 +5,7 @@ import com.ciaran.upskill.travelagency.domain.CoOrdinate;
 import com.ciaran.upskill.travelagency.domain.FlightOffer;
 import com.ciaran.upskill.travelagency.representation.CreateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.representation.UpdateFlightOfferRequest;
+import com.ciaran.upskill.travelagency.storage.CitiesRepository;
 import com.ciaran.upskill.travelagency.storage.FlightOffersRepository;
 import javassist.NotFoundException;
 import org.joda.time.DateTime;
@@ -25,6 +26,7 @@ import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -49,7 +51,7 @@ public class FlightOfferServiceTest {
     }
 
     @Test
-    public void shouldCreateFlightAndSave(){
+    public void shouldCreateFlightAndSave() throws NotFoundException {
         City city = new City("GB", "london", "London", "H2", 12000000, new CoOrdinate(51.514125, -.093689));
         when(cityService.getCityById(anyString())).thenReturn(city);
         CreateFlightOfferRequest createFlightOfferRequest = new CreateFlightOfferRequest(2.99, "londonGB", "parisFR", "Ryanair", new String[]{"2016-06-23", "2016-06-24"});
@@ -60,23 +62,20 @@ public class FlightOfferServiceTest {
         verify(flightOffersRepository).save();
     }
 
-    @Test
-    public void shouldNotCreateFlightAndReturnNullIfCityDoesntExist(){
-        when(cityService.getCityById(anyString())).thenReturn(null);
-        CreateFlightOfferRequest createFlightOfferRequest = new CreateFlightOfferRequest(2.99, "londonGB", "parisFR", "Ryanair", new String[]{"2016-06-23", "2016-06-24"});
+    @Test(expected = NotFoundException.class)
+    public void shouldNotCreateFlightIfCityDoesntExist() throws NotFoundException {
+        cityService = new CityService(new CitiesRepository(worldCitiesCSV));
+        flightOfferService = new FlightOfferService(flightOffersRepository, cityService);
+        CreateFlightOfferRequest createFlightOfferRequest = new CreateFlightOfferRequest(2.99, "citydoesnotexistGB", "parisFR", "Ryanair", new String[]{"2016-06-23", "2016-06-24"});
 
         FlightOffer flightOffer = flightOfferService.createFlightOffer(createFlightOfferRequest);
-
-        assertThat(flightOffer, is(equalTo(null)));
-        verify(flightOffersRepository, times(0)).add(any());
-        verify(flightOffersRepository, times(0)).save();
     }
 
     @Test
     public void shouldUpdateFlightAndSave() throws NotFoundException {
         UUID id = UUID.randomUUID();
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
-        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", 344, "Ryanair", flightDates);
         when(flightOffersRepository.getFLightOfferById(any())).thenReturn(Optional.of(flightOffer));
         String[] newFlightDates = {"2016-06-25T13:00:00.000", "2016-06-26T16:00:00.000"};
         DateTime[] newFlightDateTimes = {new DateTime("2016-06-25T13:00:00.000"), new DateTime("2016-06-26T16:00:00.000")};
@@ -94,7 +93,7 @@ public class FlightOfferServiceTest {
     public void shouldNotUpdateFlightAndSaveIfFlightIdNotFound() throws NotFoundException {
         UUID id = UUID.randomUUID();
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
-        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", 344, "Ryanair", flightDates);
         when(flightOffersRepository.getFLightOfferById(any())).thenReturn(Optional.empty());
         UpdateFlightOfferRequest updateFlightOfferRequest = new UpdateFlightOfferRequest(3.99, new String[]{"2016-06-25T13:00:00.000", "2016-06-26T16:00:00.000"});
 
@@ -105,7 +104,7 @@ public class FlightOfferServiceTest {
     public void shouldNotUpdateFlightAndSaveIfThereIsNoUpdate() throws NotFoundException {
         UUID id = UUID.randomUUID();
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
-        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", 344, "Ryanair", flightDates);
         when(flightOffersRepository.getFLightOfferById(any())).thenReturn(Optional.of(flightOffer));
         UpdateFlightOfferRequest updateFlightOfferRequest = new UpdateFlightOfferRequest(2.99, null);
 
@@ -121,7 +120,7 @@ public class FlightOfferServiceTest {
     public void shouldDeleteAndSaveIfFlightIsCancelled(){
         UUID id = UUID.randomUUID();
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
-        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", 344, "Ryanair", flightDates);
         when(flightOffersRepository.getFLightOfferById(id)).thenReturn(Optional.of(flightOffer));
         when(flightOffersRepository.remove(flightOffer)).thenReturn(true);
 
@@ -134,7 +133,7 @@ public class FlightOfferServiceTest {
     public void shouldReturnFalseIfFlightNotFound(){
         UUID id = UUID.randomUUID();
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
-        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
+        FlightOffer flightOffer = new FlightOffer(id, 2.99, "londonGB", "parisFR", 344, "Ryanair", flightDates);
         when(flightOffersRepository.getFLightOfferById(any())).thenReturn(Optional.empty());
 
         assertThat(flightOfferService.cancelFlightOffer(id), is(false));
@@ -146,10 +145,10 @@ public class FlightOfferServiceTest {
     public void shouldFindOnlyFlightOffersWithMatchingJourneyStartAndDate(){
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
         UUID id = UUID.randomUUID();
-        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "parisFR", "Ryanair", flightDates);
-        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "parisFR", "EasyJet", new DateTime[]{new DateTime("2016-06-24T16:00:00.000")});
-        FlightOffer flightOffer3 = new FlightOffer(UUID.randomUUID(), 2.99, "moscowRU", "parisFR", "Ryanair", flightDates);
-        FlightOffer flightOffer4 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "moscowRU", "EasyJet", flightDates);
+        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "parisFR", 344, "Ryanair", flightDates);
+        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "parisFR", 344, "EasyJet", new DateTime[]{new DateTime("2016-06-24T16:00:00.000")});
+        FlightOffer flightOffer3 = new FlightOffer(UUID.randomUUID(), 2.99, "moscowRU", "parisFR", 2500, "Ryanair", flightDates);
+        FlightOffer flightOffer4 = new FlightOffer(UUID.randomUUID(), 2.99, "londonGB", "moscowRU", 2500, "EasyJet", flightDates);
         Collection<FlightOffer> initialFlightOfferCollection = new HashSet<>();
         initialFlightOfferCollection.add(flightOffer1);
         initialFlightOfferCollection.add(flightOffer2);
@@ -162,15 +161,15 @@ public class FlightOfferServiceTest {
     }
 
     @Test
-    public void shouldReturnFlightWithNearestFlightOriginWhenSearchingByDestination(){
+    public void shouldReturnFlightWithNearestFlightOriginWhenSearchingByDestination() throws NotFoundException {
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000"), new DateTime("2016-06-25T16:00:00.000")};
         UUID id = UUID.randomUUID();
         String londonGB = "londonGB";
         String parisFR = "parisFR";
         String moscowRU = "moscowRU";
         String manchesterGB = "manchesterGB";
-        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, moscowRU, parisFR, "Ryanair", flightDates);
-        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, londonGB, parisFR, "Ryanair", flightDates);
+        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, moscowRU, parisFR, 2500, "Ryanair", flightDates);
+        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, londonGB, parisFR, 344, "Ryanair", flightDates);
         Collection<FlightOffer> initialFlightOfferCollection = new HashSet<>();
         initialFlightOfferCollection.add(flightOffer1);
         initialFlightOfferCollection.add(flightOffer2);
@@ -184,17 +183,17 @@ public class FlightOfferServiceTest {
     }
 
     @Test
-    public void shouldReturnFlightWithNearestFlightOriginThenDateWhenSearchingByDestination(){
+    public void shouldReturnFlightWithNearestFlightOriginThenDateWhenSearchingByDestination() throws NotFoundException {
         DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000")};
         UUID id = UUID.randomUUID();
         String londonGB = "londonGB";
         String parisFR = "parisFR";
         String moscowRU = "moscowRU";
         String manchesterGB = "manchesterGB";
-        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, moscowRU, parisFR, "Ryanair", flightDates);
-        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, londonGB, parisFR, "Ryanair", flightDates);
-        FlightOffer flightOffer3 = new FlightOffer(UUID.randomUUID(), 2.99, londonGB, parisFR, "Ryanair", new DateTime[]{new DateTime("2016-06-25T16:00:00Z"), new DateTime("2016-06-26T06:00:00Z")});
-        FlightOffer flightOffer4 = new FlightOffer(UUID.randomUUID(), 2.99, moscowRU, parisFR, "Ryanair", new DateTime[]{new DateTime("2016-06-25T16:00:00Z"), new DateTime("2016-06-26T06:00:00Z")});
+        FlightOffer flightOffer1 = new FlightOffer(UUID.randomUUID(), 2.99, moscowRU, parisFR, 2500, "Ryanair", flightDates);
+        FlightOffer flightOffer2 = new FlightOffer(UUID.randomUUID(), 2.99, londonGB, parisFR, 344, "Ryanair", flightDates);
+        FlightOffer flightOffer3 = new FlightOffer(UUID.randomUUID(), 2.99, londonGB, parisFR, 344, "Ryanair", new DateTime[]{new DateTime("2016-06-25T16:00:00Z"), new DateTime("2016-06-26T06:00:00Z")});
+        FlightOffer flightOffer4 = new FlightOffer(UUID.randomUUID(), 2.99, moscowRU, parisFR, 2500, "Ryanair", new DateTime[]{new DateTime("2016-06-25T16:00:00Z"), new DateTime("2016-06-26T06:00:00Z")});
         Collection<FlightOffer> initialFlightOfferCollection = new HashSet<>();
         initialFlightOfferCollection.add(flightOffer1);
         initialFlightOfferCollection.add(flightOffer2);

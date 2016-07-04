@@ -38,7 +38,8 @@ public class FlightOffersRepositoryTest {
         flightDestinationId = "parisFR";
         flightOriginId = "londonGB";
         double price = 22.99;
-        flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, airline, dates);
+        double distance = 344;
+        flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, distance, airline, dates);
     }
 
     @Test
@@ -53,7 +54,7 @@ public class FlightOffersRepositoryTest {
         try {
             flightOffersRepository.save();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(Resources.getResource(csvFile).getPath()));
-            assertThat(bufferedReader.readLine(), is(equalTo("Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates")));
+            assertThat(bufferedReader.readLine(), is(equalTo("Id,Price,FlightOriginId,FlightDestinationId,Distance,Airline,Dates")));
             assertThat(bufferedReader.readLine(), is(equalTo(flightOffer.toCSVRow())));
             bufferedReader.close();
         } catch (FileNotFoundException e) {
@@ -66,7 +67,7 @@ public class FlightOffersRepositoryTest {
     @Test
     public void shouldGetFlightOfferById(){
         UUID id = UUID.randomUUID();
-        FlightOffer flightOffer2 = new FlightOffer(id, Math.random(), "ab", "cd", "ef", new DateTime[2]);
+        FlightOffer flightOffer2 = new FlightOffer(id, Math.random(), "ab", "cd", Math.random(), "ef", new DateTime[2]);
         flightOffersRepository.add(flightOffer);
         flightOffersRepository.add(flightOffer2);
         Optional<FlightOffer> retrievedFlightoffer = flightOffersRepository.getFLightOfferById(id);

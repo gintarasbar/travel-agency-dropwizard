@@ -33,7 +33,7 @@ public class TravelAgencyResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public FlightOffer createFlightOffer(CreateFlightOfferRequest createFlightOfferRequest){
+    public FlightOffer createFlightOffer(CreateFlightOfferRequest createFlightOfferRequest) throws NotFoundException {
         return flightOfferService.createFlightOffer(createFlightOfferRequest);
     }
 
@@ -80,7 +80,7 @@ public class TravelAgencyResource {
     @Path("/nearest")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(@QueryParam("flight-destination") String flightDestinationId, @QueryParam("travel-origin") String travelOriginId, @QueryParam("date") String date){
+    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(@QueryParam("flight-destination") String flightDestinationId, @QueryParam("travel-origin") String travelOriginId, @QueryParam("date") String date) throws NotFoundException {
         return flightOfferService.findNearestFlightOfferToJourneyEnd(flightDestinationId, travelOriginId, date);
     }
 }

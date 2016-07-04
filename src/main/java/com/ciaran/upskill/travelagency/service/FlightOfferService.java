@@ -22,17 +22,21 @@ public class FlightOfferService {
         this.cityService = cityService;
     }
 
-    public FlightOffer createFlightOffer(CreateFlightOfferRequest createFlightOfferRequest) {
-        if(cityService.getCityById(createFlightOfferRequest.getFlightOrigin())==null ||
-                cityService.getCityById(createFlightOfferRequest.getFlightDestination())==null ){
-            return null;
-        }
+    public FlightOffer createFlightOffer(CreateFlightOfferRequest createFlightOfferRequest) throws NotFoundException {
+        double distance = cityService.getDistance(createFlightOfferRequest.getFlightOrigin(), createFlightOfferRequest.getFlightDestination());
         String[] requestDates = createFlightOfferRequest.getFlightDates();
         DateTime[] flightDates = new DateTime[requestDates.length];
-        for(int i = 0; i<requestDates.length; i++){
+        for (int i = 0; i < requestDates.length; i++) {
             flightDates[i] = new DateTime(requestDates[i]);
         }
-        FlightOffer flightOffer = new FlightOffer(UUID.randomUUID(), createFlightOfferRequest.getPrice(), createFlightOfferRequest.getFlightOrigin(), createFlightOfferRequest.getFlightDestination(), createFlightOfferRequest.getAirline(), flightDates);
+        FlightOffer flightOffer = new FlightOfferBuilder()
+                .withId(UUID.randomUUID())
+                .withPrice(createFlightOfferRequest.getPrice())
+                .withFlightOriginId(createFlightOfferRequest.getFlightOrigin())
+                .withFlightDestinationId(createFlightOfferRequest.getFlightDestination())
+                .withAirline(createFlightOfferRequest.getAirline())
+                .withFlightDates(flightDates)
+                .build();
         flightOffersRepository.add(flightOffer);
         flightOffersRepository.save();
         return flightOffer;
@@ -42,22 +46,22 @@ public class FlightOfferService {
     public FlightOffer updateFlightOffer(UUID flightOfferId, UpdateFlightOfferRequest updateFlightOfferRequest) throws NotFoundException {
         boolean updates = false;
         Optional<FlightOffer> flightOffer = flightOffersRepository.getFLightOfferById(flightOfferId);
-        if(flightOffer.isPresent()){
+        if (flightOffer.isPresent()) {
             double price = updateFlightOfferRequest.getPrice();
-            if(price >0 && price != flightOffer.get().getPrice()){
+            if (price > 0 && price != flightOffer.get().getPrice()) {
                 flightOffer.get().setPrice(price);
                 updates = true;
             }
             String[] flightDates = updateFlightOfferRequest.getFlightDates();
-            if(flightDates !=null){
+            if (flightDates != null) {
                 DateTime[] agencyDates = new DateTime[flightDates.length];
-                for(int i = 0; i<flightDates.length; i++){
+                for (int i = 0; i < flightDates.length; i++) {
                     agencyDates[i] = new DateTime(flightDates[i]);
                 }
                 flightOffer.get().setFlightDates(agencyDates);
                 updates = true;
             }
-            if(updates){
+            if (updates) {
                 flightOffersRepository.save();
             }
             return flightOffer.get();
@@ -67,8 +71,8 @@ public class FlightOfferService {
 
     public boolean cancelFlightOffer(UUID flightOfferId) {
         Optional<FlightOffer> flightOffer = flightOffersRepository.getFLightOfferById(flightOfferId);
-        if(flightOffer.isPresent()){
-            if(flightOffersRepository.remove(flightOffer.get())){
+        if (flightOffer.isPresent()) {
+            if (flightOffersRepository.remove(flightOffer.get())) {
                 flightOffersRepository.save();
                 return true;
             }
@@ -84,33 +88,33 @@ public class FlightOfferService {
         Collection<FlightOffer> originFlightOfferCollection = flightOffersRepository.getFlightOfferByFlightOrigin(flightOrigin);
         Collection<FlightOffer> responseFlightOfferCollection = new HashSet<>();
         DateTime requestDate = new DateTime(date);
-        for (FlightOffer flightOffer: originFlightOfferCollection){
+        for (FlightOffer flightOffer : originFlightOfferCollection) {
             boolean matchingDay = false;
-            for(DateTime dateTime : flightOffer.getFlightDates()){
-                if(requestDate.withTimeAtStartOfDay().isEqual(dateTime.withTimeAtStartOfDay())){
+            for (DateTime dateTime : flightOffer.getFlightDates()) {
+                if (requestDate.withTimeAtStartOfDay().isEqual(dateTime.withTimeAtStartOfDay())) {
                     matchingDay = true;
                 }
 
             }
-            if(matchingDay){
+            if (matchingDay) {
                 responseFlightOfferCollection.add(flightOffer);
             }
         }
         return responseFlightOfferCollection;
     }
 
-    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(String flightDestination, String travelOrigin, String dateString) {
+    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(String flightDestination, String travelOrigin, String dateString) throws NotFoundException {
         Collection<FlightOffer> flightOffersGoingToDestination = flightOffersRepository.getFlightOfferByFlightDestination(flightDestination);
         DateTime requestDate = new DateTime(dateString);
         String closestCityId = null;
         double closestDistance = 0;
-        for (FlightOffer flightOffer : flightOffersGoingToDestination){
-            if(closestCityId == null){
+        for (FlightOffer flightOffer : flightOffersGoingToDestination) {
+            if (closestCityId == null) {
                 closestCityId = flightOffer.getFlightOriginId();
                 closestDistance = cityService.getDistance(travelOrigin, closestCityId);
             } else {
                 double distance = cityService.getDistance(travelOrigin, flightOffer.getFlightOriginId());
-                if(distance<closestDistance){
+                if (distance < closestDistance) {
                     closestDistance = distance;
                     closestCityId = flightOffer.getFlightOriginId();
                 }
@@ -119,19 +123,19 @@ public class FlightOfferService {
         Collection<FlightOffer> flightOffersFromNearestCity = new HashSet<>();
         DateTime nearestDate = null;
         int nearestDateCompare = -1;
-        for (FlightOffer flightOffer : flightOffersGoingToDestination){
-            if(flightOffer.getFlightOriginId().matches(closestCityId)){
+        for (FlightOffer flightOffer : flightOffersGoingToDestination) {
+            if (flightOffer.getFlightOriginId().matches(closestCityId)) {
                 flightOffersFromNearestCity.add(flightOffer);
-                for( DateTime flightDate : flightOffer.getFlightDates()){
-                    if (nearestDate == null){
+                for (DateTime flightDate : flightOffer.getFlightDates()) {
+                    if (nearestDate == null) {
                         nearestDateCompare = flightDate.withTimeAtStartOfDay().compareTo(requestDate.withTimeAtStartOfDay());
-                        if(nearestDateCompare >= 0){
+                        if (nearestDateCompare >= 0) {
                             nearestDate = flightDate;
                         }
                     } else {
                         int flightDateCompare = flightDate.withTimeAtStartOfDay().compareTo(requestDate.withTimeAtStartOfDay());
                         nearestDateCompare = nearestDate.withTimeAtStartOfDay().compareTo(flightDate.withTimeAtStartOfDay());
-                        if(nearestDateCompare > 0 && flightDateCompare >= 0){
+                        if (nearestDateCompare > 0 && flightDateCompare >= 0) {
                             nearestDate = flightDate;
                         }
                     }
@@ -139,9 +143,9 @@ public class FlightOfferService {
             }
         }
         Collection<FlightOffer> resultingFlightOffers = new HashSet<>();
-        for (FlightOffer flightOffer : flightOffersFromNearestCity){
-            for(DateTime dateTime : flightOffer.getFlightDates()){
-                if(dateTime.withTimeAtStartOfDay().isEqual(nearestDate.withTimeAtStartOfDay())){
+        for (FlightOffer flightOffer : flightOffersFromNearestCity) {
+            for (DateTime dateTime : flightOffer.getFlightDates()) {
+                if (dateTime.withTimeAtStartOfDay().isEqual(nearestDate.withTimeAtStartOfDay())) {
                     resultingFlightOffers.add(flightOffer);
                 }
             }

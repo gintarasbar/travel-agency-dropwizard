@@ -30,7 +30,7 @@ public class FlightOffersRepository {
         BufferedWriter bufferedWriter = null;
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(csvResourcePath));
-            String headerLine = "Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates";
+            String headerLine = "Id,Price,FlightOriginId,FlightDestinationId,Distance,Airline,Dates";
             bufferedWriter.append(headerLine);
             bufferedWriter.newLine();
             for(FlightOffer flightOffer: flightOfferCollection){
@@ -63,8 +63,8 @@ public class FlightOffersRepository {
             FlightOfferBuilder flightOfferBuilder = new FlightOfferBuilder();
             while ((line = bufferedReader.readLine()) != null) {
                 String[] csvLine = line.split(csvSplitBy);
-                csvLine[5] = csvLine[5].substring(1,csvLine[5].length()-1);
-                String[] datesLine = csvLine[5].split(";");
+                csvLine[6] = csvLine[6].substring(1,csvLine[6].length()-1);
+                String[] datesLine = csvLine[6].split(";");
                 DateTime[] datesArray = new DateTime[datesLine.length];
                 for (int i = 0; i<datesArray.length; i++){
                     datesArray[i] = new DateTime(datesLine[i]);
@@ -73,7 +73,8 @@ public class FlightOffersRepository {
                         .withPrice(Double.parseDouble(csvLine[1]))
                         .withFlightOriginId(csvLine[2])
                         .withFlightDestinationId(csvLine[3])
-                        .withAirline(csvLine[4])
+                        .withDistance(Double.parseDouble(csvLine[4]))
+                        .withAirline(csvLine[5])
                         .withFlightDates(datesArray)
                         .build();
                 flightOfferCollection.add(flightOffer);
