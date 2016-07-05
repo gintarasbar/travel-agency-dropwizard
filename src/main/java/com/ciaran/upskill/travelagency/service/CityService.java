@@ -14,14 +14,19 @@ public class CityService {
         this.citiesRepository = citiesRepository;
     }
 
-    public String chooseNearesCity(City baseCity, Collection<String> cityOptions) throws NotFoundException {
+    public String chooseNearesCity(City baseCity, Collection<String> cityOptions){
         double closestDistance = -1.0;
         String closestCity = null;
         for(String city: cityOptions){
-            double distance = citiesRepository.getCityById(city).getDistance(baseCity);
-            if (closestCity == null || distance < closestDistance){
-                closestDistance = distance;
-                closestCity = city;
+            double distance = 0;
+            try {
+                distance = citiesRepository.getCityById(city).getDistance(baseCity);
+                if (closestCity == null || distance < closestDistance){
+                    closestDistance = distance;
+                    closestCity = city;
+                }
+            } catch (NotFoundException e) {
+                e.printStackTrace();
             }
         }
         return closestCity;

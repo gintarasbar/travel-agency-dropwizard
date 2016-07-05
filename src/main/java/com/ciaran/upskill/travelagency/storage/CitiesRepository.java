@@ -9,8 +9,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+
+import static com.ciaran.upskill.travelagency.service.CityBuilder.aCity;
 
 public class CitiesRepository {
 
@@ -44,7 +47,7 @@ public class CitiesRepository {
             br = new BufferedReader(new FileReader(csvResourcePath));
             //to ignore headers
             br.readLine();
-            CityBuilder cityBuilder = new CityBuilder();
+            CityBuilder cityBuilder = aCity();
 
             while ((line = br.readLine()) != null) {
                 String[] csvLine = line.split(csvSplitBy);

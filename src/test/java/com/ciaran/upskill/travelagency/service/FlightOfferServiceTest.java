@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
@@ -162,7 +163,7 @@ public class FlightOfferServiceTest {
 
     @Test
     public void shouldReturnFlightWithNearestFlightOriginWhenSearchingByDestination() throws NotFoundException {
-        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000"), new DateTime("2016-06-24T16:00:00.000"), new DateTime("2016-06-25T16:00:00.000")};
+        DateTime[] flightDates = {new DateTime("2016-06-23T13:00:00.000Z"), new DateTime("2016-06-24T16:00:00.000Z"), new DateTime("2016-06-25T16:00:00.000Z")};
         UUID id = UUID.randomUUID();
         String londonGB = "londonGB";
         String parisFR = "parisFR";
@@ -174,10 +175,9 @@ public class FlightOfferServiceTest {
         initialFlightOfferCollection.add(flightOffer1);
         initialFlightOfferCollection.add(flightOffer2);
         when(flightOffersRepository.getFlightOfferByFlightDestination(any())).thenReturn(initialFlightOfferCollection);
-        when(cityService.getDistance(manchesterGB, londonGB)).thenReturn(162.9);
-        when(cityService.getDistance(manchesterGB, moscowRU)).thenReturn(1581.6);
+        when(cityService.chooseNearesCity(any(), anyCollection())).thenReturn("londonGB");
 
-        Collection<FlightOffer> flightOfferCollection = flightOfferService.findNearestFlightOfferToJourneyEnd(parisFR, manchesterGB, "2016-06-23T00:00:00Z");
+        Collection<FlightOffer> flightOfferCollection = flightOfferService.findNearestFlightOfferToJourneyEnd(parisFR, manchesterGB, "2016-06-23T00:00:00.000Z");
 
         assertThat(flightOfferCollection, containsInAnyOrder(flightOffer2));
     }
@@ -199,8 +199,7 @@ public class FlightOfferServiceTest {
         initialFlightOfferCollection.add(flightOffer2);
         initialFlightOfferCollection.add(flightOffer3);
         initialFlightOfferCollection.add(flightOffer4);
-        when(cityService.getDistance(manchesterGB, londonGB)).thenReturn(214.0);
-        when(cityService.getDistance(manchesterGB, moscowRU)).thenReturn(1581.6);
+        when(cityService.chooseNearesCity(any(), anyCollection())).thenReturn("londonGB");
         when(flightOffersRepository.getFlightOfferByFlightDestination(any())).thenReturn(initialFlightOfferCollection);
 
         Collection<FlightOffer> flightOfferCollection = flightOfferService.findNearestFlightOfferToJourneyEnd(parisFR, manchesterGB, "2016-06-25T00:00:00Z");

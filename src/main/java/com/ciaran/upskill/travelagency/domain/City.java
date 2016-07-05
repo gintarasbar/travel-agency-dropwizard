@@ -53,8 +53,7 @@ public class City {
         return this.getLocation().getDistance(city.getLocation());
     }
 
-    @Override
-    public String toString() {
+    public String toCSVROW() {
         return  countryCode+","+name+","+printName+","+region+","+population+","+location.toString();
     }
 }

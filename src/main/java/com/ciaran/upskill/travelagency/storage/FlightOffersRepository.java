@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.ciaran.upskill.travelagency.service.FlightOfferBuilder.aFlightOffer;
+
 public class FlightOffersRepository {
     private Collection<FlightOffer> flightOfferCollection;
     private String csvResourcePath;
@@ -60,7 +62,7 @@ public class FlightOffersRepository {
         try {
             bufferedReader = new BufferedReader(new FileReader(csvResourcePath));
             bufferedReader.readLine();
-            FlightOfferBuilder flightOfferBuilder = new FlightOfferBuilder();
+            FlightOfferBuilder flightOfferBuilder = aFlightOffer();
             while ((line = bufferedReader.readLine()) != null) {
                 String[] csvLine = line.split(csvSplitBy);
                 csvLine[6] = csvLine[6].substring(1,csvLine[6].length()-1);
