@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.UUID;
 
 public class FlightOffersRepository {
@@ -29,11 +30,11 @@ public class FlightOffersRepository {
         BufferedWriter bufferedWriter = null;
         try {
             bufferedWriter = new BufferedWriter(new FileWriter(csvResourcePath));
-            String headerLine = "Id,Price,FlightOriginId,FlightDestinationId,Airline,Dates";
+            String headerLine = "Id,Price,FlightOriginId,FlightDestinationId,Distance,Airline,Dates";
             bufferedWriter.append(headerLine);
             bufferedWriter.newLine();
             for(FlightOffer flightOffer: flightOfferCollection){
-                bufferedWriter.append(flightOffer.toString());
+                bufferedWriter.append(flightOffer.toCSVRow());
                 bufferedWriter.append("\n");
             }
 
@@ -62,8 +63,8 @@ public class FlightOffersRepository {
             FlightOfferBuilder flightOfferBuilder = new FlightOfferBuilder();
             while ((line = bufferedReader.readLine()) != null) {
                 String[] csvLine = line.split(csvSplitBy);
-                csvLine[5] = csvLine[5].substring(1,csvLine[5].length()-1);
-                String[] datesLine = csvLine[5].split(";");
+                csvLine[6] = csvLine[6].substring(1,csvLine[6].length()-1);
+                String[] datesLine = csvLine[6].split(";");
                 DateTime[] datesArray = new DateTime[datesLine.length];
                 for (int i = 0; i<datesArray.length; i++){
                     datesArray[i] = new DateTime(datesLine[i]);
@@ -72,7 +73,8 @@ public class FlightOffersRepository {
                         .withPrice(Double.parseDouble(csvLine[1]))
                         .withFlightOriginId(csvLine[2])
                         .withFlightDestinationId(csvLine[3])
-                        .withAirline(csvLine[4])
+                        .withDistance(Double.parseDouble(csvLine[4]))
+                        .withAirline(csvLine[5])
                         .withFlightDates(datesArray)
                         .build();
                 flightOfferCollection.add(flightOffer);
@@ -102,27 +104,18 @@ public class FlightOffersRepository {
         return flightOfferCollection.add(flightOffer);
     }
 
-    public FlightOffer getFLightOfferById(UUID id) {
-        for(FlightOffer flightOffer: flightOfferCollection){
-            if(flightOffer.getId().equals(id)){
-                return flightOffer;
-            }
-        }
-        return null;
+    public Optional<FlightOffer> getFLightOfferById(UUID id) {
+        return flightOfferCollection.stream()
+                .filter(flightOffer -> flightOffer.getId().equals(id))
+                .findFirst();
     }
 
     public void updateDates(UUID id, DateTime[] dates){
-        FlightOffer flightOffer = getFLightOfferById(id);
-        if(flightOffer != null){
-            flightOffer.setFlightDates(dates);
-        }
-    };
+        getFLightOfferById(id).ifPresent(flight->flight.setFlightDates(dates));
+    }
 
     public void updatePrice(UUID id, double newPrice) {
-        FlightOffer flightOffer = getFLightOfferById(id);
-        if(flightOffer != null){
-            flightOffer.setPrice(newPrice);
-        }
+        getFLightOfferById(id).ifPresent(flightOffer -> flightOffer.setPrice(newPrice));
     }
 
     public boolean remove(FlightOffer flightOffer) {
@@ -133,6 +126,16 @@ public class FlightOffersRepository {
         Collection<FlightOffer> newFlightOfferCollection = new HashSet<FlightOffer>();
         for(FlightOffer flightOffer : flightOfferCollection){
             if(flightOffer.getFlightOriginId().matches(outBoundCityId)){
+                newFlightOfferCollection.add(flightOffer);
+            }
+        }
+        return newFlightOfferCollection;
+    }
+
+    public Collection<FlightOffer> getFlightOfferByFlightDestination(String inBoundCityId) {
+        Collection<FlightOffer> newFlightOfferCollection = new HashSet<FlightOffer>();
+        for(FlightOffer flightOffer : flightOfferCollection){
+            if(flightOffer.getFlightDestinationId().matches(inBoundCityId)){
                 newFlightOfferCollection.add(flightOffer);
             }
         }

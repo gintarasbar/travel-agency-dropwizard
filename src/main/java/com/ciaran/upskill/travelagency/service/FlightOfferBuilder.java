@@ -12,6 +12,7 @@ public final class FlightOfferBuilder {
     private String flightOriginId;
     private String flightDestinationId;
     private String airline;
+    private double distance;
 
     public FlightOfferBuilder() {
     }
@@ -50,8 +51,13 @@ public final class FlightOfferBuilder {
         return this;
     }
 
+    public FlightOfferBuilder withDistance(double distance) {
+        this.distance = distance;
+        return this;
+    }
+
     public FlightOffer build() {
-        FlightOffer flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, airline, flightDates);
+        FlightOffer flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, distance, airline, flightDates);
         return flightOffer;
     }
 }

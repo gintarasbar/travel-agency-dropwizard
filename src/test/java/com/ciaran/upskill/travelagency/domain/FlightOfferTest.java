@@ -4,12 +4,11 @@ import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
 import java.util.UUID;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class FlightOfferTest {
 
@@ -20,6 +19,7 @@ public class FlightOfferTest {
     private String flightOriginId;
     private double price;
     private FlightOffer flightOffer;
+    private double distance;
 
     @Before
     public void setup() {
@@ -32,18 +32,20 @@ public class FlightOfferTest {
         flightDestinationId = "parisFR";
         flightOriginId = "londonGB";
         price = 22.99;
-        flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, airline, dates);
+        distance = 344;
+        flightOffer = new FlightOffer(id, price, flightOriginId, flightDestinationId, distance, airline, dates);
     }
     @Test
-    public void shouldBeCSVReadableToStringMethod(){
-        String[] flightOfferArray = flightOffer.toString().split(",");
-        System.out.println(flightOffer.toString());
-        assertThat(flightOfferArray.length, is(6));
+    public void shouldConvertToCSVRow(){
+        String[] flightOfferArray = flightOffer.toCSVRow().split(",");
+        System.out.println(flightOffer.toCSVRow());
+        assertThat(flightOfferArray.length, is(7));
         assertThat(flightOfferArray[0], is(equalTo(id.toString())));
         assertThat(Double.parseDouble(flightOfferArray[1]), is(equalTo(price)));
         assertThat(flightOfferArray[2], is(equalTo(flightOriginId)));
         assertThat(flightOfferArray[3], is(equalTo(flightDestinationId)));
-        assertThat(flightOfferArray[4], is(equalTo(airline)));
-        assertThat(flightOfferArray[5], is(equalTo("["+dates[0]+";"+dates[1]+";"+dates[2]+"]")));
+        assertThat(Double.parseDouble(flightOfferArray[4]), is(equalTo(distance)));
+        assertThat(flightOfferArray[5], is(equalTo(airline)));
+        assertThat(flightOfferArray[6], is(equalTo("["+dates[0]+";"+dates[1]+";"+dates[2]+"]")));
     }
 }

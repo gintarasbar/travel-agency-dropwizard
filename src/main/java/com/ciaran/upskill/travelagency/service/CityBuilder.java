@@ -11,7 +11,7 @@ public final class CityBuilder {
     private String region;
     private int population;
 
-    private CityBuilder() {
+    public CityBuilder() {
     }
 
     public static CityBuilder aCity() {

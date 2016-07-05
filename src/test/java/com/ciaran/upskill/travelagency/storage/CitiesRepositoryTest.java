@@ -1,14 +1,13 @@
 package com.ciaran.upskill.travelagency.storage;
 
 import com.google.common.io.Resources;
+import javassist.NotFoundException;
 import org.junit.Before;
 import org.junit.Test;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class CitiesRepositoryTest {
 
@@ -28,7 +27,7 @@ public class CitiesRepositoryTest {
     }
 
     @Test
-    public void shouldGetCityById() {
+    public void shouldGetCityById() throws NotFoundException {
         checkNotNull(cities.getCityById("londonGB"));
     }
 

@@ -1,6 +1,7 @@
 package com.ciaran.upskill.travelagency.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Joiner;
 import org.joda.time.DateTime;
 
 import java.util.UUID;
@@ -22,13 +23,13 @@ public class FlightOffer {
     @JsonProperty
     DateTime[] flightDates;
 
-    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, String airline, DateTime[] flightDates) {
+    public FlightOffer(UUID id, double price, String flightOriginId, String flightDestinationId, double distance, String airline, DateTime[] flightDates) {
         this.id = id;
         this.price = price;
         this.flightOriginId = flightOriginId;
         this.flightDestinationId = flightDestinationId;
         this.airline = airline;
-        this.distance = 0.0;
+        this.distance = distance;
         this.flightDates = flightDates;
     }
 
@@ -68,19 +69,8 @@ public class FlightOffer {
         this.flightDates = flightDates;
     }
 
-    @Override
-    public String toString() {
-        String flightDatesString = null;
-        int i = 0;
-        for(DateTime date : flightDates){
-            if(flightDatesString == null){
-                flightDatesString = "[" + flightDates[i].toString();
-            } else {
-                flightDatesString = flightDatesString + ";" + flightDates[i].toString();
-            }
-            i++;
-        }
-        flightDatesString = flightDatesString+"]";
-        return id + "," + price + "," + flightOriginId + "," + flightDestinationId + "," + airline + "," + flightDatesString;
+    public String toCSVRow() {
+        String flightDatesString = Joiner.on(';').join(flightDates);
+        return String.format("%s,%s,%s,%s,%s,%s,[%s]", id, price, flightOriginId, flightDestinationId, distance, airline, flightDatesString);
     }
 }

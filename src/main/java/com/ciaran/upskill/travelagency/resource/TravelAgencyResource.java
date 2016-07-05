@@ -4,9 +4,8 @@ import com.ciaran.upskill.travelagency.domain.FlightOffer;
 import com.ciaran.upskill.travelagency.representation.CreateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.representation.UpdateFlightOfferRequest;
 import com.ciaran.upskill.travelagency.service.FlightOfferService;
-import com.ciaran.upskill.travelagency.storage.CitiesRepository;
-import com.ciaran.upskill.travelagency.storage.FlightOffersRepository;
 import com.codahale.metrics.annotation.Timed;
+import javassist.NotFoundException;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -18,6 +17,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 @Path("/flight-offers")
 public class TravelAgencyResource {
@@ -29,11 +30,10 @@ public class TravelAgencyResource {
     }
 
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public FlightOffer createFlightOffer(CreateFlightOfferRequest createFlightOfferRequest){
+    public FlightOffer createFlightOffer(CreateFlightOfferRequest createFlightOfferRequest) throws NotFoundException {
         return flightOfferService.createFlightOffer(createFlightOfferRequest);
     }
 
@@ -42,7 +42,7 @@ public class TravelAgencyResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public FlightOffer updateFlightOffer(@PathParam("id") String flightOfferId, UpdateFlightOfferRequest updateFlightOfferRequest){
+    public FlightOffer updateFlightOffer(@PathParam("id") UUID flightOfferId, UpdateFlightOfferRequest updateFlightOfferRequest) throws NotFoundException {
         return flightOfferService.updateFlightOffer(flightOfferId, updateFlightOfferRequest);
 
     }
@@ -50,34 +50,37 @@ public class TravelAgencyResource {
     @POST
     @Path("/{id}/cancel")
     @Timed
-    public Response cancelFlightOffer(@PathParam("id") String flightOfferId){
+    public Response cancelFlightOffer(@PathParam("id") UUID flightOfferId){
         if (flightOfferService.cancelFlightOffer(flightOfferId)){
             return Response.ok().build();
         }
-        return Response.noContent().build();
+        return Response.status(Response.Status.NOT_FOUND).build();
     }
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public FlightOffer getFlightOffer(@PathParam("id") String flightOfferId){
-        return flightOfferService.getFlightOffer(flightOfferId);
+    public FlightOffer getFlightOffer(@PathParam("id") UUID flightOfferId) throws NotFoundException {
+        Optional<FlightOffer> flightOffer = flightOfferService.getFlightOffer(flightOfferId);
+        if(flightOffer.isPresent()){
+            return flightOffer.get();
+        }
+        throw new NotFoundException("FlightOffer not found!");
     }
 
     @GET
-    @Path("/find/{outCity}")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public Collection<FlightOffer> findFlightOfferByJourneyStart(@PathParam("outCity") String outBoundCityId, @QueryParam("date") String date){
-        return flightOfferService.findFlightOfferByJourneyStart(outBoundCityId, date);
+    public Collection<FlightOffer> findFlightOfferByJourneyStart(@QueryParam("flight-origin") String flightOriginId, @QueryParam("date") String date){
+        return flightOfferService.findFlightOfferByJourneyStart(flightOriginId, date);
     }
 
     @GET
-    @Path("/find/nearest/{inCity}")
+    @Path("/nearest")
     @Produces(MediaType.APPLICATION_JSON)
     @Timed
-    public FlightOffer findNearestFlightOfferToJourneyEnd(@PathParam("inCity") String inBoundCityId, @QueryParam("origin") String journeyStartCityId, @QueryParam("date") String date){
-        return flightOfferService.findNearestFlightOfferToJourneyEnd(inBoundCityId, journeyStartCityId, date);
+    public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(@QueryParam("flight-destination") String flightDestinationId, @QueryParam("travel-origin") String travelOriginId, @QueryParam("date") String date) throws NotFoundException {
+        return flightOfferService.findNearestFlightOfferToJourneyEnd(flightDestinationId, travelOriginId, date);
     }
 }
