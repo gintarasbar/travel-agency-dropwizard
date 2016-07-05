@@ -10,9 +10,11 @@ import com.google.common.io.Resources;
 import io.dropwizard.Application;
 import io.dropwizard.setup.Environment;
 
+import static com.google.common.io.Resources.getResource;
+
 public class TravelAgencyApp extends Application<TravelAgencyConfig> {
 
-    private static final String flightOffersCSV = "flightoffers.csv";
+    public static final String flightOffersCSV = "flightoffers.csv";
     public static final String worldCitiesCSV= "worldcities.csv";
 
     public static void main(String[] args) throws Exception{
@@ -21,9 +23,9 @@ public class TravelAgencyApp extends Application<TravelAgencyConfig> {
 
     public void run(TravelAgencyConfig configuration, Environment environment) throws Exception {
 
-        final FlightOffersRepository flightOffersRepository = new FlightOffersRepository(Resources.getResource(flightOffersCSV).getPath());
+        final FlightOffersRepository flightOffersRepository = new FlightOffersRepository(getResource(flightOffersCSV).getPath());
         flightOffersRepository.load();
-        final CitiesRepository citiesRepository = new CitiesRepository(Resources.getResource(worldCitiesCSV).getPath());
+        final CitiesRepository citiesRepository = new CitiesRepository(getResource(worldCitiesCSV).getPath());
         citiesRepository.load();
         final CityService cityService = new CityService(citiesRepository);
         final FlightOfferService flightOfferService = new FlightOfferService(flightOffersRepository, cityService);

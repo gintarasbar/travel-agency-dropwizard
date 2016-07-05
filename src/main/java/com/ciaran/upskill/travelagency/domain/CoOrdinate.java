@@ -42,10 +42,6 @@ public class CoOrdinate {
         return bd.doubleValue();
     }
 
-    private double degreesToRadians(double degrees) {
-        return degrees * PI / 180;
-    }
-
     @Override
     public String toString() {
         return latitude + "," + longitude;

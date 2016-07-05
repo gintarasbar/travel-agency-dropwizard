@@ -7,10 +7,14 @@ import com.ciaran.upskill.travelagency.storage.FlightOffersRepository;
 import javassist.NotFoundException;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static com.ciaran.upskill.travelagency.service.FlightOfferBuilder.aFlightOffer;
 
 public class FlightOfferService {
 
@@ -29,7 +33,7 @@ public class FlightOfferService {
         for (int i = 0; i < requestDates.length; i++) {
             flightDates[i] = new DateTime(requestDates[i]);
         }
-        FlightOffer flightOffer = new FlightOfferBuilder()
+        FlightOffer flightOffer = aFlightOffer()
                 .withId(UUID.randomUUID())
                 .withPrice(createFlightOfferRequest.getPrice())
                 .withFlightOriginId(createFlightOfferRequest.getFlightOrigin())
@@ -106,50 +110,25 @@ public class FlightOfferService {
     public Collection<FlightOffer> findNearestFlightOfferToJourneyEnd(String flightDestination, String travelOrigin, String dateString) throws NotFoundException {
         Collection<FlightOffer> flightOffersGoingToDestination = flightOffersRepository.getFlightOfferByFlightDestination(flightDestination);
         DateTime requestDate = new DateTime(dateString);
-        String closestCityId = null;
         double closestDistance = 0;
+        ArrayList<String> flightOriginIds = new ArrayList<>();
+
+        Collection<FlightOffer> flightOffersMatchingDate = new HashSet<>();
         for (FlightOffer flightOffer : flightOffersGoingToDestination) {
-            if (closestCityId == null) {
-                closestCityId = flightOffer.getFlightOriginId();
-                closestDistance = cityService.getDistance(travelOrigin, closestCityId);
-            } else {
-                double distance = cityService.getDistance(travelOrigin, flightOffer.getFlightOriginId());
-                if (distance < closestDistance) {
-                    closestDistance = distance;
-                    closestCityId = flightOffer.getFlightOriginId();
-                }
-            }
-        }
-        Collection<FlightOffer> flightOffersFromNearestCity = new HashSet<>();
-        DateTime nearestDate = null;
-        int nearestDateCompare = -1;
-        for (FlightOffer flightOffer : flightOffersGoingToDestination) {
-            if (flightOffer.getFlightOriginId().matches(closestCityId)) {
-                flightOffersFromNearestCity.add(flightOffer);
-                for (DateTime flightDate : flightOffer.getFlightDates()) {
-                    if (nearestDate == null) {
-                        nearestDateCompare = flightDate.withTimeAtStartOfDay().compareTo(requestDate.withTimeAtStartOfDay());
-                        if (nearestDateCompare >= 0) {
-                            nearestDate = flightDate;
-                        }
-                    } else {
-                        int flightDateCompare = flightDate.withTimeAtStartOfDay().compareTo(requestDate.withTimeAtStartOfDay());
-                        nearestDateCompare = nearestDate.withTimeAtStartOfDay().compareTo(flightDate.withTimeAtStartOfDay());
-                        if (nearestDateCompare > 0 && flightDateCompare >= 0) {
-                            nearestDate = flightDate;
-                        }
-                    }
-                }
-            }
-        }
-        Collection<FlightOffer> resultingFlightOffers = new HashSet<>();
-        for (FlightOffer flightOffer : flightOffersFromNearestCity) {
             for (DateTime dateTime : flightOffer.getFlightDates()) {
-                if (dateTime.withTimeAtStartOfDay().isEqual(nearestDate.withTimeAtStartOfDay())) {
-                    resultingFlightOffers.add(flightOffer);
+                if (dateTime.withTimeAtStartOfDay().isEqual(requestDate.withTimeAtStartOfDay())) {
+                    flightOffersMatchingDate.add(flightOffer);
                 }
             }
         }
-        return resultingFlightOffers;
+
+        for (FlightOffer flightOffer : flightOffersMatchingDate) {
+            flightOriginIds.add(flightOffer.getFlightOriginId());
+        }
+
+        String closestCityId = cityService.chooseNearesCity(cityService.getCityById(travelOrigin), flightOriginIds);
+
+        return flightOffersMatchingDate.stream()
+                .filter(flightOffer -> flightOffer.getFlightOriginId().matches(closestCityId)).collect(Collectors.toList());
     }
 }

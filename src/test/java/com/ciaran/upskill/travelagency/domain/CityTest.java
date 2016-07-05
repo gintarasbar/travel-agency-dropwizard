@@ -30,7 +30,7 @@ public class CityTest {
 
     @Test
     public void shouldConvertToStringInCSVReadableFormat() throws Exception {
-        String[] flightOfferArray = city.toString().split(",");
+        String[] flightOfferArray = city.toCSVROW().split(",");
         assertThat(flightOfferArray.length, is(7));
         assertThat(flightOfferArray[0], is(equalTo(countryCode)));
         assertThat(flightOfferArray[1], is(equalTo(name)));
